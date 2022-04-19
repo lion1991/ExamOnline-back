@@ -1,4 +1,5 @@
 # ExamOnline
+更新支持simplejwt验证
 Python在线考试系统-大学毕业设计
 前端代码：https://github.com/520118202/exam-online
 后端安装依赖
