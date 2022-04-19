@@ -2,7 +2,7 @@ from django.db import models
 
 # Create your models here.
 from exam.models import Practice
-from question.models import Choice, Fill, Judge, Program
+from question.models import Choice, Fill, Judge, Program, ChoiceMu
 from user.models import Student
 
 
@@ -21,12 +21,21 @@ class Record(models.Model):
 
 
 class ChoiceRecord(Record):
-    """选择题答题记录"""
-    choice = models.ForeignKey(Choice, verbose_name="选择题", on_delete=models.CASCADE)
+    """单选题答题记录"""
+    choice = models.ForeignKey(Choice, verbose_name="单选题", on_delete=models.CASCADE)
 
     class Meta:
         ordering = ['id']
-        verbose_name = '选择题答题记录'
+        verbose_name = '单选题答题记录'
+        verbose_name_plural = verbose_name
+
+class ChoiceMuRecord(Record):
+    """多选题答题记录"""
+    choicemu = models.ForeignKey(ChoiceMu, verbose_name="多选题", on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ['id']
+        verbose_name = '多选题答题记录'
         verbose_name_plural = verbose_name
 
 

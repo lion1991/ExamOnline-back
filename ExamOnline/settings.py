@@ -12,7 +12,10 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 import datetime
 import os
 
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+import timedelta
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
@@ -47,7 +50,9 @@ INSTALLED_APPS = [
     'user',
     'exam',
     'question',
-    'record'
+    'record',
+    'rest_framework_simplejwt',
+    'corsheaders'  #跨域
 ]
 
 MIDDLEWARE = [
@@ -58,6 +63,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware', #跨域
 ]
 
 ROOT_URLCONF = 'ExamOnline.urls'
@@ -128,24 +134,63 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
+
 # restframework配置
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         # Json Web Token
-        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        # 'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        # simplejwt验证
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+
     ),
     # restframework新版3.10.1需要指定默认schema
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
 }
 
 # JWT设置
-JWT_AUTH = {
+# JWT_AUTH = {
+SIMPLE_JWT = {
     # token的有效期限
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=7),
+    # 'JWT_EXPIRATION_DELTA': datetime.timedelta(days=7),
+    # 'ACCESS_TOKEN_LIFETIME': datetime.timedelta(minutes=1),
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(seconds=10),
+    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True,
+    # 'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=1),
+    # 'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(seconds=120),
     # JWT跟前端保持一致，比如“token”这里设置成JWT
-    'JWT_AUTH_HEADER_PREFIX': 'JWT',
+    # 'JWT_AUTH_HEADER_PREFIX': 'JWT',
     # 自定义方法返回用户信息
-    'JWT_RESPONSE_PAYLOAD_HANDLER': 'user.views.jwt_response_payload_handler'
+    # 'JWT_RESPONSE_PAYLOAD_HANDLER': 'user.views.jwt_response_payload_handler'
 }
+
+# 跨域增加忽略
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_WHITELIST = ()
+
+CORS_ALLOW_METHODS = (
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+    'VIEW',
+)
+
+CORS_ALLOW_HEADERS = (
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+)
+

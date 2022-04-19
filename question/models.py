@@ -35,6 +35,40 @@ class Choice(models.Model):
     def __str__(self):
         return self.question
 
+# 添加多选题数据
+class ChoiceMu(models.Model):
+    """多选题模型"""
+    LEVEL_CHOICES = (
+        ('1', '入门'),
+        ('2', '简单'),
+        ('3', '普通'),
+        ('4', '较难'),
+        ('5', '困难')
+    )
+    ANSWER_CHOICES = (
+        ('A', 'A'),
+        ('B', 'B'),
+        ('C', 'C'),
+        ('D', 'D')
+    )
+    question = models.TextField("题目", default="")
+    answer_A = models.CharField("A选项", max_length=200, default="")
+    answer_B = models.CharField("B选项", max_length=200, default="")
+    answer_C = models.CharField("C选项", max_length=200, default="")
+    answer_D = models.CharField("D选项", max_length=200, default="")
+    right_answer = models.CharField("正确选项", max_length=4, choices=ANSWER_CHOICES, default="A")
+    analysis = models.TextField("题目解析", default="暂无")
+    score = models.PositiveSmallIntegerField("分值", default=2)
+    level = models.CharField("难度等级", max_length=1, choices=LEVEL_CHOICES, default='1')
+
+    class Meta:
+        ordering = ['id']
+        verbose_name = '多选题'
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.question
+
 
 class Fill(models.Model):
     """判断题模型"""

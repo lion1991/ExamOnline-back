@@ -18,6 +18,7 @@ class Paper(models.Model):
     name = models.CharField("试卷名称", max_length=20, default="")
     score = models.PositiveSmallIntegerField("总分", default=100)
     choice_number = models.PositiveSmallIntegerField("选择题数", default=10)
+    choicemu_number = models.PositiveSmallIntegerField("多选题数", default=10)
     fill_number = models.PositiveSmallIntegerField("填空题数", default=10)
     judge_number = models.PositiveSmallIntegerField("判断题数", default=10)
     program_number = models.PositiveSmallIntegerField("编程题数", default=5)

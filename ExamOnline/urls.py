@@ -14,15 +14,19 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 import xadmin
+from django.contrib import admin
 from django.urls import path, include, re_path
 from rest_framework.documentation import include_docs_urls
 from rest_framework.routers import DefaultRouter
 from rest_framework_jwt.views import obtain_jwt_token
+from rest_framework_simplejwt.views import TokenRefreshView
+from user.views import MyObtainTokenPairView
 
 from exam.views import GradeListViewSet, ExamListViewSet, PracticeListViewSet
-from question.views import ChoiceListViewSet, FillListViewSet, JudgeListViewSet, ProgramListViewSet, CheckProgramApi
+from question.views import ChoiceListViewSet, FillListViewSet, JudgeListViewSet, ProgramListViewSet, CheckProgramApi, \
+    ChoiceMuListViewSet
 from record.views import ChoiceRecordListViewSet, FillRecordListViewSet, JudgeRecordListViewSet, \
-    ProgramRecordListViewSet
+    ProgramRecordListViewSet, ChoiceMuRecordListViewSet
 from user.views import RegisterViewSet, StudentViewSet, UpdatePwdApi, ClazzListViewSet
 
 router = DefaultRouter()
@@ -31,6 +35,7 @@ router = DefaultRouter()
 router.register(r'exams', ExamListViewSet)
 router.register(r'grades', GradeListViewSet)
 router.register(r'choices', ChoiceListViewSet)
+router.register(r'choicesmu', ChoiceMuListViewSet)
 router.register(r'fills', FillListViewSet)
 router.register(r'judges', JudgeListViewSet)
 router.register(r'programs', ProgramListViewSet)
@@ -39,15 +44,18 @@ router.register(r'clazzs', ClazzListViewSet)
 router.register(r'students', StudentViewSet)
 router.register(r'practices', PracticeListViewSet)
 router.register(r'records/choices', ChoiceRecordListViewSet)
+router.register(r'records/choicesmu', ChoiceMuRecordListViewSet)
 router.register(r'records/fills', FillRecordListViewSet)
 router.register(r'records/judges', JudgeRecordListViewSet)
 router.register(r'records/programs', ProgramRecordListViewSet)
 
 urlpatterns = [
-    path('xadmin/', xadmin.site.urls),
+    path('admin/', xadmin.site.urls),
     path('docs/', include_docs_urls('Python在线考试系统')),
     path('api-auth/', include('rest_framework.urls')),
     path('jwt-auth/', obtain_jwt_token),
+    path('token/', MyObtainTokenPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('check-program/', CheckProgramApi.as_view()),
     path('update-pwd/', UpdatePwdApi.as_view()),
     re_path('^', include(router.urls))

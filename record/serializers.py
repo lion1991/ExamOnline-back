@@ -2,9 +2,10 @@ from rest_framework import serializers
 
 from exam.models import Practice
 from exam.serializers import PracticeSerializer
-from question.models import Choice, Fill, Judge, Program
-from question.serializers import ChoiceSerializer, FillSerializer, JudgeSerializer, ProgramSerializer
-from record.models import ChoiceRecord, FillRecord, ProgramRecord, JudgeRecord
+from question.models import Choice, Fill, Judge, Program, ChoiceMu
+from question.serializers import ChoiceSerializer, FillSerializer, JudgeSerializer, ProgramSerializer, \
+    ChoiceMuSerializer
+from record.models import ChoiceRecord, FillRecord, ProgramRecord, JudgeRecord, ChoiceMuRecord
 from user.models import Student
 from user.serializers import StudentSerializer
 
@@ -23,6 +24,22 @@ class ChoiceRecordSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ChoiceRecord
+        fields = '__all__'
+
+class ChoiceMuRecordSerializer(serializers.ModelSerializer):
+    # 覆盖外键字段 只读
+    practice = PracticeSerializer(read_only=True)
+    student = StudentSerializer(read_only=True)
+    choicemu = ChoiceMuSerializer(read_only=True)
+
+    # 用于创建的只写字段
+    practice_id = serializers.PrimaryKeyRelatedField(queryset=Practice.objects.all(), source='practice',
+                                                     write_only=True)
+    student_id = serializers.PrimaryKeyRelatedField(queryset=Student.objects.all(), source='student', write_only=True)
+    choicemu_id = serializers.PrimaryKeyRelatedField(queryset=ChoiceMu.objects.all(), source='choicemu', write_only=True)
+
+    class Meta:
+        model = ChoiceMuRecord
         fields = '__all__'
 
 

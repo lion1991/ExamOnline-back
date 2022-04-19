@@ -1,6 +1,6 @@
 from import_export import resources
 
-from question.models import Choice, Fill, Judge, Program
+from question.models import Choice, ChoiceMu, Fill, Judge, Program
 
 
 class ChoiceResource(resources.ModelResource):
@@ -8,6 +8,10 @@ class ChoiceResource(resources.ModelResource):
         model = Choice
         fields = ('id', 'question', 'answer_A', 'answer_B', 'answer_C', 'answer_D', 'right_answer', 'analysis', 'score', 'level')
 
+class ChoiceMuResource(resources.ModelResource):
+    class Meta:
+        model = ChoiceMu
+        fields = ('id', 'question', 'answer_A', 'answer_B', 'answer_C', 'answer_D', 'right_answer', 'analysis', 'score', 'level')
 
 class FillResource(resources.ModelResource):
     class Meta:

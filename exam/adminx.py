@@ -11,7 +11,7 @@ from xadmin.views import CommAdminView, BaseAdminView
 class GlobalSetting(object):
     # 全局设置
     site_title = 'Python在线考试后台管理系统'
-    site_footer = 'Design by Pengshengfu'
+    site_footer = 'Design by Pengshengfu | Modify by Wuxianping'
     # 菜单默认收缩
     # menu_style = 'accordion'
 
@@ -37,9 +37,12 @@ class ExamAdmin(object):
     # 修改多对多穿梭框样式
     style_fields = {'clazzs': 'm2m_transfer'}
 
-
+# 考试管理试卷字段
 class PaperAdmin(object):
-    list_display = ['id', 'name', 'score', 'choice_number', 'fill_number', 'judge_number', 'program_number', 'level']
+    '''
+    考试管理试卷字段
+    '''
+    list_display = ['id', 'name', 'score', 'choice_number', 'choicemu_number', 'fill_number', 'judge_number', 'program_number', 'level']
     list_filter = ['level']
     search_fields = ['id', 'name']
     list_display_links = ['name']

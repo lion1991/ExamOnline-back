@@ -1,7 +1,7 @@
 import xadmin
 
-from question.models import Choice, Fill, Judge, Program
-from question.resource import ChoiceResource, FillResource, JudgeResource, ProgramResource
+from question.models import Choice, Fill, Judge, Program, ChoiceMu
+from question.resource import ChoiceResource, FillResource, JudgeResource, ProgramResource, ChoiceMuResource
 
 
 class ChoiceAdmin(object):
@@ -14,6 +14,18 @@ class ChoiceAdmin(object):
     # list_editable = ['question']
     model_icon = 'fa fa-question-circle-o'
     import_export_args = {'import_resource_class': ChoiceResource}
+
+#添加多选
+class ChoiceMuAdmin(object):
+    list_display = ['id', 'question', 'answer_A', 'answer_B', 'answer_C', 'answer_D',
+                    'right_answer', 'analysis', 'score', 'level']
+    list_filter = ['level']
+    search_fields = ['id', 'question']
+    list_display_links = ['question']
+    list_per_page = 10
+    # list_editable = ['question']
+    model_icon = 'fa fa-question-circle-o'
+    import_export_args = {'import_resource_class': ChoiceMuResource}
 
 
 class FillAdmin(object):
@@ -50,6 +62,8 @@ class ProgramAdmin(object):
 
 
 xadmin.site.register(Choice, ChoiceAdmin)
+#添加多选
+xadmin.site.register(ChoiceMu, ChoiceMuAdmin)
 xadmin.site.register(Fill, FillAdmin)
 xadmin.site.register(Judge, JudgeAdmin)
 xadmin.site.register(Program, ProgramAdmin)

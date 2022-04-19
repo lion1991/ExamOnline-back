@@ -4,8 +4,9 @@ from rest_framework import mixins, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from question.models import Choice, Fill, Judge, Program
-from question.serializers import ChoiceSerializer, FillSerializer, JudgeSerializer, ProgramSerializer
+from question.models import Choice, Fill, Judge, Program, ChoiceMu
+from question.serializers import ChoiceSerializer, FillSerializer, JudgeSerializer, ProgramSerializer, \
+    ChoiceMuSerializer
 
 
 # Create your views here.
@@ -28,6 +29,23 @@ class ChoiceListViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             self.queryset = Choice.objects.all().filter(level=level).order_by('?')[:choice_number]
         return self.queryset
 
+#多选
+class ChoiceMuListViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    """选择题列表页"""
+    # 这里要定义一个默认的排序，否则会报错
+    queryset = ChoiceMu.objects.all().order_by('id')[:0]
+    # 序列化
+    serializer_class = ChoiceMuSerializer
+
+    # 重写queryset
+    def get_queryset(self):
+        # 题目数量
+        choicemu_number = int(self.request.query_params.get("choicemu_number"))
+        level = int(self.request.query_params.get("level", 1))
+
+        if choicemu_number:
+            self.queryset = ChoiceMu.objects.all().filter(level=level).order_by('?')[:choicemu_number]
+        return self.queryset
 
 class FillListViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """填空题列表页"""
@@ -85,7 +103,8 @@ class ProgramListViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
 class CheckProgramApi(APIView):
     """测试编程题"""
-
+    authentication_classes = []
+    permission_classes = []
     def post(self, request):
         # 获取post提交的字典数据
         json_body = request.data

@@ -1,7 +1,10 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, viewsets, filters
 from rest_framework.pagination import PageNumberPagination
-
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.response import Response
 from exam.filter import ExamFilter
 from exam.models import Exam, Grade, Practice
 from exam.serializers import ExamSerializer, GradeSerializer, PracticeSerializer
@@ -22,6 +25,8 @@ class CommonPagination(PageNumberPagination):
 
 
 class ExamListViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     """考试列表页"""
     # 这里必须要定义一个默认的排序,否则会报错
     queryset = Exam.objects.all().order_by('id')
@@ -50,7 +55,11 @@ class ExamListViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
 
 class GradeListViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     """成绩列表"""
+    # authentication_classes = []
+    # permission_classes = []
     # 这里必须要定义一个默认的排序,否则会报错
     queryset = Grade.objects.all().order_by('-create_time')
     # 序列化
@@ -62,14 +71,29 @@ class GradeListViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewsets.
     def get_queryset(self):
         # 学生ID
         student_id = self.request.query_params.get("student_id")
-
         if student_id:
             self.queryset = Grade.objects.filter(student_id=student_id)
         return self.queryset
+    # 重写返回
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        result_data = response.data
+        return Response(
+            {
+                "code": 200,
+                "message": "查询成功",
+                "response": result_data
+            }
+        )
 
 
 class PracticeListViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet):
     """练习列表"""
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = []
+    # permission_classes = []
     # 数据集
     queryset = Practice.objects.all()
     # 序列化
@@ -82,4 +106,15 @@ class PracticeListViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewse
         student_id = self.request.query_params.get('student_id')
         if student_id:
             self.queryset = Practice.objects.filter(student_id=student_id)
-        return self.queryset
+        return (self.queryset)
+
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        result_data = response.data
+        return Response(
+            {
+                "code": 200,
+                "message": "查询成功",
+                "response": result_data
+            }
+        )

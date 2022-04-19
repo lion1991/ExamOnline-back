@@ -1,13 +1,18 @@
 from rest_framework import serializers
 
-from question.models import Choice, Fill, Judge, Program
+from question.models import Choice, Fill, Judge, Program, ChoiceMu
 
 
 class ChoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Choice
         fields = '__all__'
+#mu
 
+class ChoiceMuSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChoiceMu
+        fields = '__all__'
 
 class FillSerializer(serializers.ModelSerializer):
     class Meta:
