@@ -52,8 +52,8 @@ INSTALLED_APPS = [
     'question',
     'record',
     'rest_framework_simplejwt',
-    'corsheaders',  #跨域
-    'drf_yasg2', #添加yasg2文档
+    'drf_yasg2',
+    'corsheaders'  #跨域
 ]
 
 MIDDLEWARE = [
@@ -68,10 +68,6 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'ExamOnline.urls'
-
-TEMPLATE_LOADERS = (
-    'django.template.loaders.eggs.Loader',
-)
 
 TEMPLATES = [
     {
@@ -142,8 +138,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # restframework配置
 REST_FRAMEWORK = {
-    #api接口文档
-    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
@@ -200,36 +194,29 @@ CORS_ALLOW_HEADERS = (
     'x-csrftoken',
     'x-requested-with',
 )
-
-# swagger 配置项
 SWAGGER_SETTINGS = {
-    # 基础样式
+    'LOGIN_URL': '/admin/login',
+    'LOGOUT_URL': '/admin/logout',
+    'PERSIST_AUTH': True,
+    'REFETCH_SCHEMA_WITH_AUTH': True,
+    'REFETCH_SCHEMA_ON_LOGOUT': True,
+
+    'DEFAULT_INFO': 'DjangoDrfTest.urls.swagger_info',#这里注意，更改DjangoDrfTest
+
     'SECURITY_DEFINITIONS': {
-        "basic":{
+        'Basic': {
             'type': 'basic'
+        },
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'authorization',
+            'in': 'header'
+        },
+        'Query': {
+            'type': 'apiKey',
+            'name': 'auth',
+            'in': 'query'
         }
-    },
-    # 到处文件配置
-    'DEFAULT_INFO': 'server.urls.openapi_info',
-    # 如果需要登录才能够查看接口文档, 登录的链接使用restframework自带的.
-    'LOGIN_URL': 'rest_framework:login',
-    'LOGOUT_URL': 'rest_framework:logout',
-    "enabled_methods": [
-        'get',
-        'post',
-        'put',
-        'patch',
-        'delete'
-    ],
-    # 'DOC_EXPANSION': None,
-    # 'SHOW_REQUEST_HEADERS':True,
-    # 'USE_SESSION_AUTH': True,
-    # 'DOC_EXPANSION': 'list',
-    # 接口文档中方法列表以首字母升序排列
-    'APIS_SORTER': 'alpha',
-    # 如果支持json提交, 则接口文档中包含json输入框
-    'JSON_EDITOR': True,
-    # 方法列表字母排序
-    'OPERATIONS_SORTER': 'alpha',
-    'VALIDATOR_URL': None,
+    }
 }
+

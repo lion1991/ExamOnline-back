@@ -16,6 +16,8 @@ Including another URLconf
 import xadmin
 from django.contrib import admin
 from django.urls import path, include, re_path
+from drf_yasg2 import openapi
+from drf_yasg2.views import get_schema_view
 from rest_framework import permissions
 from rest_framework.documentation import include_docs_urls
 from rest_framework.routers import DefaultRouter
@@ -29,9 +31,6 @@ from question.views import ChoiceListViewSet, FillListViewSet, JudgeListViewSet,
 from record.views import ChoiceRecordListViewSet, FillRecordListViewSet, JudgeRecordListViewSet, \
     ProgramRecordListViewSet, ChoiceMuRecordListViewSet
 from user.views import RegisterViewSet, StudentViewSet, UpdatePwdApi, ClazzListViewSet
-
-from drf_yasg2.views import get_schema_view
-from drf_yasg2 import openapi
 
 router = DefaultRouter()
 
@@ -53,17 +52,15 @@ router.register(r'records/fills', FillRecordListViewSet)
 router.register(r'records/judges', JudgeRecordListViewSet)
 router.register(r'records/programs', ProgramRecordListViewSet)
 
-openapi_info = openapi.Info(
-        title="模板数据管理服务",
-        default_version='v1',
-        description="模板数据管理服务",
-        # terms_of_service="https://www.tweet.org",
-        contact=openapi.Contact(email="xxx@xxx.com"),
-        # license=openapi.License(name="Awesome IP"),
-    )
-
 schema_view = get_schema_view(
-    openapi_info,
+    openapi.Info(
+        title="Tweet API",
+        default_version='v1',
+        description="Welcome to the world of Tweet",
+        terms_of_service="https://www.tweet.org",
+        contact=openapi.Contact(email="demo@tweet.org"),
+        license=openapi.License(name="Awesome IP"),
+    ),
     public=True,
     permission_classes=(permissions.AllowAny,),
 )
@@ -71,8 +68,8 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('admin/', xadmin.site.urls),
     # path('docs/', include_docs_urls('Python在线考试系统')),
-    path('docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    re_path(r'^docs(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
+    path('doc/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),  #<-- 这里
+    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),  #<-- 这里
     path('api-auth/', include('rest_framework.urls')),
     path('jwt-auth/', obtain_jwt_token),
     path('token/', MyObtainTokenPairView.as_view(), name='token_obtain_pair'),
