@@ -128,7 +128,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
@@ -158,7 +158,7 @@ SIMPLE_JWT = {
     # token的有效期限
     # 'JWT_EXPIRATION_DELTA': datetime.timedelta(days=7),
     # 'ACCESS_TOKEN_LIFETIME': datetime.timedelta(minutes=1),
-    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(seconds=10),
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(minutes=120),
     'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': True,
     # 'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=1),
