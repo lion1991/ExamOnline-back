@@ -9,8 +9,9 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from user.models import Student, Clazz
-from user.serializers import StudentSerializer, UserDetailSerializer, ClazzSerializer, MyTokenObtainPairSerializer
+from user.models import Student, Department, Department
+from user.serializers import StudentSerializer, UserDetailSerializer, DepartmentSerializer, MyTokenObtainPairSerializer, \
+    DepartmentSerializer
 
 
 # Create your views here.
@@ -105,11 +106,11 @@ class StudentViewSet(viewsets.ModelViewSet):
     serializer_class = StudentSerializer
 
 
-class ClazzListViewSet(viewsets.ModelViewSet):
+class DepartmentListViewSet(viewsets.ModelViewSet):
     """
-    班级信息
+    部门信息
     """
     # 查询集
-    queryset = Clazz.objects.all().order_by('id')
+    queryset = Department.objects.all().order_by('id')
     # 序列化
-    serializer_class = ClazzSerializer
+    serializer_class = DepartmentSerializer

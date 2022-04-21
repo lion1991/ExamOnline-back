@@ -50,7 +50,7 @@ class ExamListViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         student = Student.objects.get(id=student_id)
 
         if student:
-            self.queryset = Exam.objects.filter(clazzs__student=student)
+            self.queryset = Exam.objects.filter(department__student=student)
         return self.queryset
 
 

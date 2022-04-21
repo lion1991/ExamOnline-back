@@ -1,6 +1,6 @@
 from django.db import models
 from question.models import Choice, Fill, Judge, Program
-from user.models import Student, Clazz
+from user.models import Student, Department
 from datetime import datetime
 import random
 
@@ -45,7 +45,7 @@ class Exam(models.Model):
     paper = models.OneToOneField(Paper, on_delete=models.CASCADE, verbose_name="试卷", default="")
     major = models.CharField("专业", max_length=20, default="")
     tips = models.TextField("考生须知", default="")
-    clazzs = models.ManyToManyField(Clazz, verbose_name="参加考试的班级")
+    department = models.ManyToManyField(Department, verbose_name="参加考试的部门")
 
     class Meta:
         ordering = ["id"]

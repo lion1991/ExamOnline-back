@@ -7,7 +7,7 @@ class StudentResource(resources.ModelResource):
 
     class Meta:
         model = Student
-        fields = ('id', 'name', 'user', 'gender', 'clazz')
+        fields = ('id', 'name', 'user', 'gender', 'department')
         # id = fields.Field(attribute='id', column_name='ID')
         # name = fields.Field(attribute='name', column_name='姓名')
         # user = fields.Field(attribute='user', column_name='用户')

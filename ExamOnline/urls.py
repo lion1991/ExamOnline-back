@@ -33,7 +33,7 @@ from question.views import ChoiceListViewSet, FillListViewSet, JudgeListViewSet,
     ChoiceMuListViewSet
 from record.views import ChoiceRecordListViewSet, FillRecordListViewSet, JudgeRecordListViewSet, \
     ProgramRecordListViewSet, ChoiceMuRecordListViewSet
-from user.views import RegisterViewSet, StudentViewSet, UpdatePwdApi, ClazzListViewSet
+from user.views import RegisterViewSet, StudentViewSet, UpdatePwdApi, DepartmentListViewSet
 
 router = DefaultRouter()
 
@@ -46,7 +46,7 @@ router.register(r'fills', FillListViewSet)
 router.register(r'judges', JudgeListViewSet)
 router.register(r'programs', ProgramListViewSet)
 router.register(r'register', RegisterViewSet)
-router.register(r'clazzs', ClazzListViewSet)
+router.register(r'department', DepartmentListViewSet)
 router.register(r'students', StudentViewSet)
 router.register(r'practices', PracticeListViewSet)
 router.register(r'records/choices', ChoiceRecordListViewSet)

@@ -3,19 +3,20 @@ from django.db import models
 
 
 # Create your models here.
-class Clazz(models.Model):
-    """班级"""
-    year = models.CharField("年级", max_length=20)
-    major = models.CharField("专业", max_length=20)
-    clazz = models.CharField("班级", max_length=20)
+class Department(models.Model):
+    """部门"""
+    # year = models.CharField("年级", max_length=20)
+    # major = models.CharField("专业", max_length=20)
+    department  = models.CharField("部门", max_length=20)
 
     class Meta:
         ordering = ['id']
-        verbose_name = "班级"
+        verbose_name = "部门"
         verbose_name_plural = verbose_name
 
     def __str__(self):
-        return self.year + self.major + self.clazz
+        # return self.year + self.major + self.department
+        return self.department
 
 
 class Student(models.Model):
@@ -28,7 +29,7 @@ class Student(models.Model):
     # 一对一关联字段
     user = models.OneToOneField(User, verbose_name="用户", on_delete=models.CASCADE)
     gender = models.CharField("性别", max_length=1, choices=GENDER_CHOICES, default="")
-    clazz = models.ForeignKey(Clazz, verbose_name="班级", on_delete=models.CASCADE, default="1")
+    department = models.ForeignKey(Department, verbose_name="部门", on_delete=models.CASCADE, default="1")
 
 
     class Meta:

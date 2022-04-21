@@ -3,12 +3,12 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from user.models import Student, Clazz
+from user.models import Student, Department
 
 
-class ClazzSerializer(serializers.ModelSerializer):
+class DepartmentSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Clazz
+        model = Department
         fields = '__all__'
 
 
@@ -24,7 +24,7 @@ class StudentSerializer(serializers.ModelSerializer):
     # clazz = ClazzSerializer(read_only=True)
 
     # 用于创建的只写字段
-    clazz_id = serializers.PrimaryKeyRelatedField(queryset=Clazz.objects.all(), source='clazz', write_only=True)
+    clazz_id = serializers.PrimaryKeyRelatedField(queryset=Department.objects.all(), source='department', write_only=True)
 
     class Meta:
         model = Student

@@ -29,17 +29,22 @@ class FileView(generics.CreateAPIView):
         # print(request.data)
         if request.data.get('period') == "":
             return Response(data={'code':401,'msg':"参数不全"})
-        else:
+        #过滤文件名是否符合规范
+        # namelist = ['张三']
+        # filename = request.data.get('name').split('.')[0]
+        if filename in namelist:
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
             headers = self.get_success_headers(serializer.data)
             return Response(data={'data':serializer.data,'code': 200}, status=status.HTTP_201_CREATED, headers=headers)
-
+        else:
+            print(filename)
+            return Response(data={'code': 402, 'msg': "文件命名不正确"})
 class UploadListViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
-    """成绩列表"""
+    """上传列表"""
     # authentication_classes = []
     # permission_classes = []
     # 这里必须要定义一个默认的排序,否则会报错
@@ -52,9 +57,9 @@ class UploadListViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewsets
     # 重写queryset
     def get_queryset(self):
         # 学生ID
-        student_id = self.request.query_params.get("uploader_id")
+        student_id = self.request.query_params.get("student_id")
         if student_id:
-            self.queryset = Files.objects.filter(student_id=student_id)
+            self.queryset = Files.objects.filter(uploader_id=student_id)
         return self.queryset
     # 重写返回
     def list(self, request, *args, **kwargs):
