@@ -23,6 +23,8 @@ from rest_framework.documentation import include_docs_urls
 from rest_framework.routers import DefaultRouter
 from rest_framework_jwt.views import obtain_jwt_token
 from rest_framework_simplejwt.views import TokenRefreshView
+
+from hsoftskill import views
 from user.views import MyObtainTokenPairView
 
 from exam.views import GradeListViewSet, ExamListViewSet, PracticeListViewSet
@@ -76,5 +78,6 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('check-program/', CheckProgramApi.as_view()),
     path('update-pwd/', UpdatePwdApi.as_view()),
+    path(r'file/', views.FileView.as_view()),
     re_path('^', include(router.urls))
 ]

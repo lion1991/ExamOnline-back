@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'exam',
     'question',
     'record',
+    'hsoftskill',
     'rest_framework_simplejwt',
     'drf_yasg2',
     'corsheaders'  #跨域
