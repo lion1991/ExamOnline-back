@@ -32,15 +32,15 @@ class FileView(generics.CreateAPIView):
         #过滤文件名是否符合规范
         # namelist = ['张三']
         # filename = request.data.get('name').split('.')[0]
-        if filename in namelist:
-            serializer = self.get_serializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            self.perform_create(serializer)
-            headers = self.get_success_headers(serializer.data)
-            return Response(data={'data':serializer.data,'code': 200}, status=status.HTTP_201_CREATED, headers=headers)
-        else:
-            print(filename)
-            return Response(data={'code': 402, 'msg': "文件命名不正确"})
+        # if filename in namelist:
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(data={'data':serializer.data,'code': 200}, status=status.HTTP_201_CREATED, headers=headers)
+        # else:
+        #     print(filename)
+        #     return Response(data={'code': 402, 'msg': "文件命名不正确"})
 class UploadListViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
