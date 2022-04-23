@@ -13,7 +13,7 @@ from record.models import ChoiceRecord, FillRecord, JudgeRecord, ProgramRecord, 
 from record.serializers import ChoiceRecordSerializer, FillRecordSerializer, JudgeRecordSerializer, \
     ProgramRecordSerializer, ChoiceMuRecordSerializer
 from hsoftskill import serializers
-from hsoftskill.models import Files
+from hsoftskill.models import Files, LimitFile
 
 
 class FileView(generics.CreateAPIView):
@@ -61,6 +61,28 @@ class UploadListViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewsets
         if student_id:
             self.queryset = Files.objects.filter(uploader_id=student_id)
         return self.queryset
+    # 重写返回
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        result_data = response.data
+        return Response(
+            {
+                "code": 200,
+                "message": "查询成功",
+                "response": result_data
+            }
+        )
+
+class LimitPeriodListViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    """上传列表"""
+    # authentication_classes = []
+    # permission_classes = []
+    # 这里必须要定义一个默认的排序,否则会报错
+    queryset = LimitFile.objects.all()
+    # 序列化
+    serializer_class = serializers.LimitFileSerializer
     # 重写返回
     def list(self, request, *args, **kwargs):
         response = super().list(request, *args, **kwargs)

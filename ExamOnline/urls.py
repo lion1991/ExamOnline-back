@@ -25,7 +25,7 @@ from rest_framework_jwt.views import obtain_jwt_token
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from hsoftskill import views
-from hsoftskill.views import UploadListViewSet
+from hsoftskill.views import UploadListViewSet, LimitPeriodListViewSet
 from user.views import MyObtainTokenPairView
 
 from exam.views import GradeListViewSet, ExamListViewSet, PracticeListViewSet
@@ -55,6 +55,7 @@ router.register(r'records/fills', FillRecordListViewSet)
 router.register(r'records/judges', JudgeRecordListViewSet)
 router.register(r'records/programs', ProgramRecordListViewSet)
 router.register(r'showfile', UploadListViewSet)
+router.register(r'showlimitperiod', LimitPeriodListViewSet)
 
 schema_view = get_schema_view(
     openapi.Info(

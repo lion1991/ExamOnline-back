@@ -6,10 +6,17 @@ from question.models import Choice, Fill, Judge, Program, ChoiceMu
 from question.serializers import ChoiceSerializer, FillSerializer, JudgeSerializer, ProgramSerializer, \
     ChoiceMuSerializer
 from record.models import ChoiceRecord, FillRecord, ProgramRecord, JudgeRecord, ChoiceMuRecord
-from hsoftskill.models import Files
+from hsoftskill.models import Files, LimitFile
+
 
 class FileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Files
+        fields = '__all__'
+        # exclude = ('create_time', 'is_delete')
+
+class LimitFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LimitFile
         fields = '__all__'
         # exclude = ('create_time', 'is_delete')
