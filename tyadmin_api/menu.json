@@ -1,0 +1,220 @@
+[
+    {
+        name: 'Home',
+        path: '/xadmin/index',
+        icon: 'dashboard',
+        component: './TyAdminBuiltIn/DashBoard'
+    },
+    {
+        path: '/xadmin/',
+        redirect: '/xadmin/index',
+    },
+    {
+        name: '认证和授权',
+        icon: 'BarsOutlined',
+        path: '/xadmin/auth',
+        routes:
+        [
+            {
+                name: '权限',
+                path: '/xadmin/auth/permission',
+                component: './AutoGenPage/PermissionList',
+            },
+            {
+                name: '组',
+                path: '/xadmin/auth/group',
+                component: './AutoGenPage/GroupList',
+            },
+            {
+                name: '用户',
+                path: '/xadmin/auth/user',
+                component: './AutoGenPage/UserList',
+            }
+        ]
+    },
+    {
+        name: '用户管理',
+        icon: 'BarsOutlined',
+        path: '/xadmin/user',
+        routes:
+        [
+            {
+                name: '部门',
+                path: '/xadmin/user/department',
+                component: './AutoGenPage/DepartmentList',
+            },
+            {
+                name: '审批员',
+                path: '/xadmin/user/teacher',
+                component: './AutoGenPage/TeacherList',
+            },
+            {
+                name: '员工',
+                path: '/xadmin/user/student',
+                component: './AutoGenPage/StudentList',
+            },
+            {
+                name: '权限信息',
+                path: '/xadmin/user/user_roles_info',
+                component: './AutoGenPage/UserRolesInfoList',
+            }
+        ]
+    },
+    {
+        name: '考试管理',
+        icon: 'BarsOutlined',
+        path: '/xadmin/exam',
+        routes:
+        [
+            {
+                name: '试卷',
+                path: '/xadmin/exam/paper',
+                component: './AutoGenPage/PaperList',
+            },
+            {
+                name: '考试',
+                path: '/xadmin/exam/exam',
+                component: './AutoGenPage/ExamList',
+            },
+            {
+                name: '成绩',
+                path: '/xadmin/exam/grade',
+                component: './AutoGenPage/GradeList',
+            },
+            {
+                name: '练习',
+                path: '/xadmin/exam/practice',
+                component: './AutoGenPage/PracticeList',
+            }
+        ]
+    },
+    {
+        name: '题库管理',
+        icon: 'BarsOutlined',
+        path: '/xadmin/question',
+        routes:
+        [
+            {
+                name: '选择题',
+                path: '/xadmin/question/choice',
+                component: './AutoGenPage/ChoiceList',
+            },
+            {
+                name: '多选题',
+                path: '/xadmin/question/choice_mu',
+                component: './AutoGenPage/ChoiceMuList',
+            },
+            {
+                name: '填空题',
+                path: '/xadmin/question/fill',
+                component: './AutoGenPage/FillList',
+            },
+            {
+                name: '判断题',
+                path: '/xadmin/question/judge',
+                component: './AutoGenPage/JudgeList',
+            },
+            {
+                name: '编程题',
+                path: '/xadmin/question/program',
+                component: './AutoGenPage/ProgramList',
+            }
+        ]
+    },
+    {
+        name: 'Record',
+        icon: 'BarsOutlined',
+        path: '/xadmin/record',
+        routes:
+        [
+            {
+                name: '单选题答题记录',
+                path: '/xadmin/record/choice_record',
+                component: './AutoGenPage/ChoiceRecordList',
+            },
+            {
+                name: '多选题答题记录',
+                path: '/xadmin/record/choice_mu_record',
+                component: './AutoGenPage/ChoiceMuRecordList',
+            },
+            {
+                name: '填空题答题记录',
+                path: '/xadmin/record/fill_record',
+                component: './AutoGenPage/FillRecordList',
+            },
+            {
+                name: '判断题答题记录',
+                path: '/xadmin/record/judge_record',
+                component: './AutoGenPage/JudgeRecordList',
+            },
+            {
+                name: '编程题答题记录',
+                path: '/xadmin/record/program_record',
+                component: './AutoGenPage/ProgramRecordList',
+            }
+        ]
+    },
+    {
+        name: '上传管理',
+        icon: 'BarsOutlined',
+        path: '/xadmin/hsoftskill',
+        routes:
+        [
+            {
+                name: '上传限制',
+                path: '/xadmin/hsoftskill/limit_file',
+                component: './AutoGenPage/LimitFileList',
+            },
+            {
+                name: '随机判分组',
+                path: '/xadmin/hsoftskill/random_file_id',
+                component: './AutoGenPage/RandomFileIdList',
+            },
+            {
+                name: '上传文件',
+                path: '/xadmin/hsoftskill/files',
+                component: './AutoGenPage/FilesList',
+            },
+            {
+                name: '个人成绩文件',
+                path: '/xadmin/hsoftskill/personal_grade_files',
+                component: './AutoGenPage/PersonalGradeFilesList',
+            },
+            {
+                name: '组长考核文件',
+                path: '/xadmin/hsoftskill/captain_files',
+                component: './AutoGenPage/CaptainFilesList',
+            },
+            {
+                name: '考核题发布',
+                path: '/xadmin/hsoftskill/exam_files',
+                component: './AutoGenPage/ExamFilesList',
+            },
+            {
+                name: '评分上传',
+                path: '/xadmin/hsoftskill/judge_files',
+                component: './AutoGenPage/JudgeFilesList',
+            }
+        ]
+    },
+    {
+        name: 'TyadminBuiltin',
+        icon: 'VideoCamera',
+        path: '/xadmin/sys',
+        routes:
+        [
+            {
+                name: 'TyAdminLog',
+                icon: 'smile',
+                path: '/xadmin/sys/ty_admin_sys_log',
+                component: './TyAdminBuiltIn/TyAdminSysLogList'
+            },
+            {
+                name: 'TyAdminVerify',
+                icon: 'smile',
+                path: '/xadmin/sys/ty_admin_email_verify_record',
+                component: './TyAdminBuiltIn/TyAdminEmailVerifyRecordList'
+            }
+        ]
+    }
+]

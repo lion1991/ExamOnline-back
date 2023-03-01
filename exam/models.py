@@ -60,8 +60,8 @@ class Exam(models.Model):
 class Grade(models.Model):
     """成绩模型类"""
     exam = models.ForeignKey(Exam, verbose_name="考试", on_delete=models.CASCADE)
-    student = models.ForeignKey(Student, verbose_name="学生", on_delete=models.CASCADE)
-    score = models.PositiveSmallIntegerField("分数", default="")
+    student = models.ForeignKey(Student, verbose_name="员工", on_delete=models.CASCADE)
+    score = models.PositiveSmallIntegerField("分数", default="0")
     create_time = models.DateTimeField("创建日期", auto_now_add=True)
     update_time = models.DateTimeField("修改日期", auto_now=True)
 
@@ -77,7 +77,7 @@ class Grade(models.Model):
 class Practice(models.Model):
     """模拟练习"""
     name = models.CharField("练习名称", max_length=20)
-    student = models.ForeignKey(Student, verbose_name="学生", on_delete=models.CASCADE)
+    student = models.ForeignKey(Student, verbose_name="员工", on_delete=models.CASCADE)
     create_time = models.DateTimeField("练习时间", auto_now_add=True)
 
     class Meta:
