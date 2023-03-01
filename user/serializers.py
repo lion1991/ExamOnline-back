@@ -4,6 +4,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, Toke
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from user.models import Student, Department
+    # , MenuInfo, MetaInfo, RolesInfo, StaffMenu, MenuChildren, MetaChildrenInfo
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
@@ -18,17 +19,86 @@ class UserDetailSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+
+class RolesInfoSerializer(serializers.Serializer):
+    # roles = serializers.StringRelatedField(many=True, read_only=False)
+    sys = serializers.CharField (max_length=32)
+    # class Meta:
+    #     model = RolesInfo
+    #     # fields = '__all__'
+    #     fields = ('name')
+
+class UserRolesInfoSerializer(serializers.Serializer):
+    # roles = serializers.StringRelatedField(many=True, read_only=False)
+    roles = serializers.CharField (max_length=32)
+
+# class MetaChildrenInfoSerializer(serializers.ModelSerializer):
+#     # roles = serializers.StringRelatedField(many=True, read_only=False)
+#     # roles = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+#     # roles = serializers.ReadOnlyField(source="roles.name")
+#     # roles = RolesInfoSerializer(many=True)
+#     roles = serializers.StringRelatedField(many=True, read_only=False)
+#     class Meta:
+#         model = MetaChildrenInfo
+#         # fields = '__all__'
+#         fields = ('title', 'icon', 'roles')
+
+# class MetaInfoSerializer(serializers.ModelSerializer):
+#     # roles = serializers.StringRelatedField(many=True, read_only=False)
+#     # roles = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+#     # roles = serializers.ReadOnlyField(source="roles.name")
+#     # roles = RolesInfoSerializer(many=True)
+#     roles = serializers.StringRelatedField(many=True, read_only=False)
+#
+#     class Meta:
+#         model = MetaInfo
+#         # fields = '__all__'
+#         fields = ('title', 'icon', 'roles')
+
+
+# class MenuChildrenSerializer(serializers.ModelSerializer):
+#     meta = MetaChildrenInfoSerializer()
+#     class Meta:
+#         model = MenuChildren
+#         fields = ('meta', 'path', 'component', 'alwaysShow', 'name')
+#         # fields = '__all__'
+#
+# class MenuInfoSerializer(serializers.Serializer):
+#     meta = MetaInfoSerializer()
+#     path = serializers.CharField(max_length=32)
+#     component = serializers.CharField(max_length=32)
+#     alwaysShow = serializers.BooleanField()
+#     name = serializers.CharField(max_length=32)
+#     # menuchildren_set1 = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
+#     children = MenuChildrenSerializer(many=True)
+#     #
+#     # class Meta:
+#     #     model = MenuInfo
+#     #     fields = ('meta', 'path', 'component', 'alwaysShow', 'name', 'children', 'menuinfo_set')
+
+# class StaffMenuSerializer(serializers.Serializer):
+#     menu = MenuInfoSerializer()
+#     # children = MenuChildrenSerializer()
+#     # class Meta:
+#     #     model = StaffMenu
+#     #     # fields = '__all__'
+#     #     fields = ('menu',)
+
 class StudentSerializer(serializers.ModelSerializer):
     # 覆盖外键字段 只读
     # user = UserDetailSerializer()
     # clazz = ClazzSerializer(read_only=True)
-
+    # menu = MenuInfoSerializer()
     # 用于创建的只写字段
-    clazz_id = serializers.PrimaryKeyRelatedField(queryset=Department.objects.all(), source='department', write_only=True)
+    roles = serializers.StringRelatedField(many=True, read_only=False)
+    department_id = serializers.PrimaryKeyRelatedField(queryset=Department.objects.all(), source='department', write_only=True)
 
     class Meta:
         model = Student
         fields = '__all__'
+        # fields = ('roles','department_id',)
+
+
 
     #创建simplejwt的自定义序列化
 

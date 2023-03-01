@@ -2,16 +2,22 @@ from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.db.models import Q
+from django.http import Http404
 from rest_framework import viewsets, mixins, status
+from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.views import TokenObtainPairView
+from django_filters.rest_framework import DjangoFilterBackend
 
+from user.genericsview import ReListView
 from user.models import Student, Department, Department
+    #, MenuInfo, StaffMenu
 from user.serializers import StudentSerializer, UserDetailSerializer, DepartmentSerializer, MyTokenObtainPairSerializer, \
-    DepartmentSerializer
+    DepartmentSerializer\
+    #, MenuInfoSerializer, StaffMenuSerializer
 
 
 # Create your views here.
@@ -98,13 +104,12 @@ class StudentViewSet(viewsets.ModelViewSet):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     """
-    学生信息
+    用户信息
     """
     # 查询集
     queryset = Student.objects.all().order_by('id')
     # 序列化
     serializer_class = StudentSerializer
-
 
 class DepartmentListViewSet(viewsets.ModelViewSet):
     """
@@ -114,3 +119,60 @@ class DepartmentListViewSet(viewsets.ModelViewSet):
     queryset = Department.objects.all().order_by('id')
     # 序列化
     serializer_class = DepartmentSerializer
+
+
+class QueryUserView(GenericAPIView):
+    # authentication_classes = [JWTAuthentication]
+    authentication_classes = []
+    # permission_classes = [IsAuthenticated]
+    permission_classes = []
+    """
+    用户权限信息
+    """
+    filter_backends = [DjangoFilterBackend]
+    queryset = Student.objects.all()  # 你要序列化的数据
+    serializer_class = StudentSerializer  # 你要使用的序列化类
+
+    def get(self, request, *args, **kwargs):
+        info = self.get_object()  # 获取单条
+        ser = self.get_serializer(instance=info)
+        print(info)
+        return Response({'data':ser.data, 'code':200, 'msg': '用户获取成功'}, status=200)
+
+# class QueryMenuList(ReListView):
+#     authentication_classes = []
+#     permission_classes = []
+#     queryset = GetMenu.objects.all()
+#     serializer_class = GetMenuSerializer
+
+# class QueryMenuDetail(APIView):
+#     """
+#     Retrieve, update or delete an article instance.
+#     """
+#
+#     authentication_classes = []
+#     permission_classes = []
+#     def get_object(self, pk):
+#         try:
+#             return Student.objects.filter(pk=pk)
+#         except StaffMenu.DoesNotExist:
+#             raise Http404
+#
+#     def get(self, request, pk, format=None):
+#         #需要借助查询多对多关系表StaffMenu的staffid字段，返回对应的Menu_id
+#         #然后序列化MenuInfo的数据
+#         menu = self.get_object(pk)
+#         menu = self.get_object(pk)
+#         a = StaffMenu.objects.filter(staff=pk).all()
+#         print(a)
+#         # b = a.staffmenu_set.all()
+#         # b = a.staffmenu.objects()
+#         # print(b)
+#         # menu_obj = menu.staffmenu_set.all()
+#         # print(menu_obj)
+#         # menu = MenuInfo.objects.filter(b)
+#         # print(menu)
+#         serializer = StaffMenuSerializer(a, many=True)
+#         # serializer = MenuInfoSerializer(menu, many=True)
+#         print(serializer.data)
+#         return Response({"msg": "菜单查询成功", "code": 200, "data": serializer.data})
