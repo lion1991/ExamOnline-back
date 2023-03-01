@@ -229,7 +229,6 @@ class CaptainFileDownload(ModelViewSet):
     permission_classes = []
     queryset = CaptainFiles.objects.filter()
     serializer_class = serializers.CaptainFileSerializer
-
     # 文件下载响应
     @action(methods=['get', 'post'], detail=True)
     def download(self, request, pk=None, *args, **kwargs):
@@ -239,7 +238,7 @@ class CaptainFileDownload(ModelViewSet):
         response = FileResponse(open(file_obj.file.path, 'rb'))
         response['Content-Type'] = 'application/octet-stream'
         response['Content-Disposition'] = 'attachment;filename="{}"'.format(filename.encode('utf-8').decode('ISO-8859-1'))
-#         return response
+        return response
 
 class JudgeFileDownload(ModelViewSet):
     """
@@ -494,7 +493,7 @@ class CaptainUploadList(APIView):
             id = value['id']
             address = f"{downloadlink}/captainfilesdownload/{id}/download" #赋值当前id的下载链接
             p = CaptainFiles.objects.get(id=id)
-            # print(p.downloadfile)
+            print(p.downloadfile)
             if not p.downloadfile:   #如果当前downloadfile字段无值，将链接传入并保存到数据库中
                 p.downloadfile = address
                 p.save()
