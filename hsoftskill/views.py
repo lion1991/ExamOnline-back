@@ -1,7 +1,11 @@
-import random
 
-from django.http import FileResponse
-from django.shortcuts import render
+from django.http import FileResponse, Http404
+from django.http import HttpResponse
+
+import os
+import random
+import zipfile
+import math
 
 # Create your views here.
 from rest_framework import mixins, viewsets, generics, status
@@ -18,10 +22,6 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from exam.views import CommonPagination
 from hsoftskill.filevars import fileuserid, qj_userid, ljj_userid, wcl_userid, ybw_userid, wy_userid, \
     captainName, downloadlink, lc_userid
-from question.models import Program
-from record.models import ChoiceRecord, FillRecord, JudgeRecord, ProgramRecord, ChoiceMuRecord
-from record.serializers import ChoiceRecordSerializer, FillRecordSerializer, JudgeRecordSerializer, \
-    ProgramRecordSerializer, ChoiceMuRecordSerializer
 from hsoftskill import serializers, robot, mergeexcel
 from hsoftskill.models import Files, LimitFile, RandomFileId, CaptainFiles, ExamFiles, JudgeFiles, PersonalGradeFiles
 #from tyadmin_api.auto_serializers import FilesListSerializer
@@ -211,15 +211,15 @@ class FileDownload(ModelViewSet):
     serializer_class = serializers.FileSerializer
 
     # 文件下载响应
-    @action(methods=['get', 'post'], detail=True)
-    def download(self, request, pk=None, *args, **kwargs):
-        file_obj = self.get_object()
-        print(file_obj)
-        filename = str(file_obj)
-        response = FileResponse(open(file_obj.file.path, 'rb'))
-        response['Content-Type'] = 'application/octet-stream'
-        response['Content-Disposition'] = 'attachment;filename="{}"'.format(filename.encode('utf-8').decode('ISO-8859-1'))
-        return response
+
+    def download_zip(self, request, filename, period):
+        file_path = os.path.join('/Project/ExamOnline-back/upload/exam' + str(period) + '/' + filename)
+        if os.path.exists(file_path):
+            with open(file_path, 'rb') as fh:
+                response = HttpResponse(fh.read(), content_type="application/zip")
+                response['Content-Disposition'] = 'attachment;filename="{}"'.format(filename.encode('utf-8').decode('ISO-8859-1'))
+                return response
+        raise Http404
 
 class CaptainFileDownload(ModelViewSet):
     """
@@ -338,6 +338,7 @@ class LimitPeriodListViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, vie
         )
 
 
+
 class FilePersion(APIView):
     # 返回查询的文件上传信息
     """
@@ -346,60 +347,57 @@ class FilePersion(APIView):
     authentication_classes = []
     permission_classes = []
 
-    # 你要序列化的数据
-    # serializer_class = serializers.FileSerializer  # 你要使用的序列化类
-    # queryset = Files.objects.all().order_by('-pk')
     def get(self, request):
         req = request.GET
-        period = (req['period'])
-        qs = Files.objects.filter(period=period).values('id')  # GenericAPIView提供的等同于self.queryset
-        ser = serializers.FileSerializer(instance=qs, many=True)  # GenericAPIView提供的等同于self.serializer_class
-        # print(Files.objects.filter(period=1))
-        # 定义各组随机列表
-        qj_userid.clear()
-        ljj_userid.clear()
-        wcl_userid.clear()
-        lc_userid.clear()
-        ybw_userid.clear()
-        wy_userid.clear()
-        fileuserid.clear()
+        period = req['period']
 
-        for value in qs:
-            fileuserid.append(value['id'])
+        # 获取上传目录下的所有文件名并随机排序
+        upload_dir = "C:/Project/ExamOnline-back/upload/exam" + str(period)
+        file_names = os.listdir(upload_dir)
+        random.shuffle(file_names)
 
-        random.shuffle(fileuserid)
+        # 计算每组文件数量
+        group_size = 6
+        num_files = len(file_names)
+        files_per_group = math.ceil(num_files / group_size)
 
-        while True:
-            if fileuserid:
-                qj_userid.append(downloadlink + "/filesdownload/" + str(fileuserid.pop()) + "/download")
-            if fileuserid:
-                ljj_userid.append(downloadlink + "/filesdownload/" + str(fileuserid.pop()) + "/download")
-            if fileuserid:
-                wcl_userid.append(downloadlink + "/filesdownload/" + str(fileuserid.pop()) + "/download")
-            if fileuserid:
-                lc_userid.append(downloadlink + "/filesdownload/" + str(fileuserid.pop()) + "/download")
-            if fileuserid:
-                ybw_userid.append(downloadlink + "/filesdownload/" + str(fileuserid.pop()) + "/download")
-            if fileuserid:
-                wy_userid.append(downloadlink + "/filesdownload/" + str(fileuserid.pop()) + "/download")
-            else:
-                break
+        # 将文件名分组
+        groups = [[] for _ in range(group_size)]
+        for i, file_name in enumerate(file_names):
+            group_index = i % group_size
+            groups[group_index].append(file_name)
+
+        # 将剩余的文件添加到最后一组中
+        #if len(groups[-1]) < files_per_group:
+        #    groups[-1].extend(groups.pop())
+
+        # 逐个分组进行压缩
+        download_links = []
+        for i, group in enumerate(groups):
+            # 创建zip文件
+            zip_file_name = f"group_{i+1}.zip"
+            zip_file_path = os.path.join(upload_dir, zip_file_name)
+            with zipfile.ZipFile(zip_file_path, "w") as zip_file:
+                # 循环添加每个文件
+                for file_name in group:
+                    file_path = os.path.join(upload_dir, file_name)
+                    zip_file.write(file_path, arcname=file_name)
+
+            # 生成下载链接
+            download_link = downloadlink + "/filesdownload/" + zip_file_name + "/" + period
+            download_links.append(download_link)
+
         try:
-            RandomFileId.objects.create(team_one=qj_userid, team_two=ljj_userid, team_three=wcl_userid,
-                                        team_four=lc_userid,
-                                        team_five=ybw_userid, team_six=wy_userid, period_id=period)
+            RandomFileId.objects.create(team_one=download_links[0], team_two=download_links[1], team_three=download_links[2],
+                                        team_four=download_links[3], team_five=download_links[4], team_six=download_links[5], period_id=period)
 
-
-            print(f"开始{qj_userid}")
-            print(ljj_userid)
-            print(wcl_userid)
-            print(lc_userid)
-            print(ybw_userid)
-            print(f"结束{wy_userid}")
+            print(f"生成下载链接成功：{download_links}")
             return Response(data={'msg': '处理成功', 'code': 200}, status=200)
         except Exception as e:
             print(e)
             return Response(data={'msg': '处理失败，请检查period', 'code': 400}, status=400)
+
+
 
 class MergeFile(APIView):
     """
@@ -411,23 +409,6 @@ class MergeFile(APIView):
 
     queryset = JudgeFiles.objects.filter()
     serializer_class = serializers.JudgeFileSerializer
-
-    # def create(self, request, *args, **kwargs):
-    #
-    #     uploader = request.data.get('uploader')
-    #     period = request.data.get('period')
-    #     query = JudgeFiles.objects.filter(period=period).values('uploader')[::1]
-    #     uploadedid = []
-    #     for index in query:
-    #         uploadedid.append(index.get('uploader'))
-    #     if int(uploader) in uploadedid:
-    #         return Response(data={'msg': '处理失败，已经上传过', 'code': 405}, status=200)
-    #
-    #     serializer = self.get_serializer(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
-    #     self.perform_create(serializer)
-    #     headers = self.get_success_headers(serializer.data)
-    #     return Response(data={'data': serializer.data, 'code': 200}, status=status.HTTP_201_CREATED, headers=headers)
 
     def post(self, request):
         req = request.data
@@ -609,29 +590,4 @@ class UploadedEmployee(APIView):
         return Response(data={'data':ser.data, 'msg': '处理成功', 'code': 200}, status=200)
 
 
-#转换excel为html
-# from Personnel.models import Contract
-# import pandas
-# from django.shortcuts import render
-# def load_excel(request):
-#     if request.method == 'GET':
-#         # 获取前台传过来的id值，判断文件的类型是不是excel。
-#         id = request.GET.get('id')
-#         contract_type = Contract.objects.filter(contract_id=id).first().contract_type
-#         if contract_type == 'excel':
-#             # 从数据库中获取文件的存的path，
-#             path_obj = Contract.objects.filter(contract_id=id).first().contract_content
-#             contract_name = Contract.objects.filter(contract_id=id).first().contract_name
-#             # 重命名并指定路径{ 将文件写入template文件夹中，因为我们的Django项目静态页面都是存放在这个文件夹下面}
-#             new_file_name = "template/" + contract_name.split('.')[0] + '.html'
-#             html_path = new_file_name.split('/')[1]
-#
-#             # 通过pandas.ExcelFie函数，将excel文件转成html
-#             xd = pandas.ExcelFile(path_obj)
-#             df = xd.parse()
-#             html = df.to_html(header=True, index=True)
-#             # 将转换后的html写入，一定要加编码方式utf-8，要不页面中打开会乱码
-#             with open(new_file_name, 'w', encoding='utf-8') as file:
-#                 file.writelines('<meta charset="UTF-8">\n')
-#                 file.write(html)
-#     return render(request, html_path, locals())
+

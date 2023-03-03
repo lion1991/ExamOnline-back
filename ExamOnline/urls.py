@@ -61,7 +61,7 @@ router.register(r'records/judges', JudgeRecordListViewSet)
 router.register(r'records/programs', ProgramRecordListViewSet)
 router.register(r'showfile', UploadListViewSet)
 router.register(r'showlimitperiod', LimitPeriodListViewSet)
-router.register(r'filesdownload', views.FileDownload)
+#router.register(r'filesdownload', views.FileDownload) #组员考核文件下载
 router.register(r'captainfilesdownload', views.CaptainFileDownload)
 router.register(r'examfilesdownload', views.ExamFileDownload)
 router.register(r'judgefiledownload', views.JudgeFileDownload)  # 评分下载
@@ -111,6 +111,7 @@ urlpatterns = [
     path(r'personalgradeuploadlist/', views.PersonalGradeUploadList.as_view()),         #生成个人成绩文件下载链接返回
     path(r'examuploadlist/', views.ExamUploadList.as_view()),               #生成考题文件下载链接返回
     path(r'uploadedemployee/', views.UploadedEmployee.as_view()),               #查询已上传人员
+    path('filesdownload/<str:filename>/<int:period>', views.FileDownload.as_view({'get': 'download_zip'}), name='download_zip'),
     # re_path(r'^queryuser/(?P<pk>\d+)$', QueryUserView.as_view()),               #考核题下载
     # re_path(r'^querymenu/(?P<pk>\d+)$', QueryMenuDetail.as_view()),               #考核题下载
 
