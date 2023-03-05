@@ -16,10 +16,10 @@ class FileSerializer(serializers.ModelSerializer):
         # exclude = ('create_time', 'is_delete')
 
 class FilePersonSerializer(serializers.ModelSerializer):
-    uploader = serializers.ReadOnlyField(source="uploader.name")
+    uploaderName = serializers.ReadOnlyField(source="uploader.name")
     class Meta:
         model = Files
-        fields = ('uploader',)
+        fields = ('uploaderName','uploader')
 
 class PersonalGradeFileSerializer(serializers.ModelSerializer):
     class Meta:

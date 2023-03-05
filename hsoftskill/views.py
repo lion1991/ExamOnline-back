@@ -587,6 +587,7 @@ class UploadedEmployee(APIView):
         period = (req['period'])
         query = Files.objects.filter(period=period).all()
         ser = serializers.FilePersonSerializer(instance=query, many=True)
+        print(ser.data)
         return Response(data={'data':ser.data, 'msg': '处理成功', 'code': 200}, status=200)
 
 
