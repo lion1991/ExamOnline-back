@@ -21,7 +21,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from exam.views import CommonPagination
 from hsoftskill.filevars import fileuserid, qj_userid, ljj_userid, wcl_userid, ybw_userid, wy_userid, \
-    captainName, downloadlink, lc_userid
+    captainName, downloadlink, lc_userid ,filerootpath
 from hsoftskill import serializers, robot, mergeexcel
 from hsoftskill.models import Files, LimitFile, RandomFileId, CaptainFiles, ExamFiles, JudgeFiles, PersonalGradeFiles
 #from tyadmin_api.auto_serializers import FilesListSerializer
@@ -213,7 +213,7 @@ class FileDownload(ModelViewSet):
     # 文件下载响应
 
     def download_zip(self, request, filename, period):
-        file_path = os.path.join('/Project/ExamOnline-back/upload/exam' + str(period) + '/' + filename)
+        file_path = os.path.join(filerootpath + '/exam' + str(period) + '/' + filename)
         if os.path.exists(file_path):
             with open(file_path, 'rb') as fh:
                 response = HttpResponse(fh.read(), content_type="application/zip")
@@ -352,7 +352,7 @@ class FilePersion(APIView):
         period = req['period']
 
         # 获取上传目录下的所有文件名并随机排序
-        upload_dir = "C:/Project/ExamOnline-back/upload/exam" + str(period)
+        upload_dir = filerootpath + "/exam" + str(period)
         file_names = os.listdir(upload_dir)
         random.shuffle(file_names)
 
