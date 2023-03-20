@@ -9,5 +9,5 @@ wy_userid = []
 captainName = ['qiujun', 'lvjiajun','lichao','weichunlei','yaobowen','wangyang','matt', 'wangkuan', 'zhaoyang']
 #downloadlink = 'http://127.0.0.1:8000'   #文件下载地址，正式环境各更改为网站后端地址
 downloadlink = 'http://exam.wrlog.cn:8000'   #文件下载地址，正式环境各更改为网站后端地址
-#filerootpath = 'C:/Project/ExamOnline-back/upload'   #测试环境文件上传目录
-filerootpath = '/www/project/ExamOnlineBacknew/upload'   #正式环境文件上传目录
+filerootpath = 'C:/Project/ExamOnline-back/upload'   #测试环境文件上传目录
+#filerootpath = '/www/project/ExamOnlineBacknew/upload'   #正式环境文件上传目录

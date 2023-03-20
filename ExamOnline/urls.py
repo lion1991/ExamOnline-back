@@ -114,6 +114,9 @@ urlpatterns = [
     path('filesdownload/<str:filename>/<int:period>', views.FileDownload.as_view({'get': 'download_zip'}), name='download_zip'),
     # re_path(r'^queryuser/(?P<pk>\d+)$', QueryUserView.as_view()),               #考核题下载
     # re_path(r'^querymenu/(?P<pk>\d+)$', QueryMenuDetail.as_view()),               #考核题下载
+    path(r'insertdatabase/', views.InsertDatabase.as_view()),               #插入成绩到数据库
+    path(r'getallperiod/', views.GetAllPeriod.as_view()),               # 获取考核期数
+    path(r'getscore/', views.GetScore.as_view()),               # 获取人员成绩信息
 
     re_path('^', include(router.urls)),
 
