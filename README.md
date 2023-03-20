@@ -1,3 +1,5 @@
+TODO：第十期的models建立；TyAdmin重新生成。
+
 # ExamOnline
 Python在线考试系统-大学毕业设计
 前端代码：https://github.com/520118202/exam-online
