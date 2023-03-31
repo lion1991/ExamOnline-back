@@ -651,3 +651,36 @@ class NetworkScore9(models.Model):
         verbose_name = '数通成绩9'
         verbose_name_plural = verbose_name
         unique_together = ('name', 'period')
+
+#第十期
+class Score10(models.Model):
+    name = models.CharField(max_length=100, verbose_name='姓名')
+    linux_score = models.FloatField(verbose_name='服务器成绩', null=True, blank=True)
+    period = models.IntegerField(verbose_name='考核期数', default=9)
+
+    class Meta:
+        db_table = 'exam_score_total_10'
+        verbose_name = '总成绩10'
+        verbose_name_plural = verbose_name
+        unique_together = ('name', 'period')
+
+class LinuxScore10(models.Model):
+    name = models.CharField(max_length=100, verbose_name='姓名')
+    period = models.IntegerField(verbose_name='考核期数', default=10)
+    # 评分项列名
+    item1 = models.FloatField(verbose_name='开机启动vsftpd服务(5分)', null=True, blank=True)
+    item2 = models.FloatField(verbose_name='设置ftp登陆公告(5分)', null=True, blank=True)
+    item3 = models.FloatField(verbose_name='匿名用户权限(20分)', null=True, blank=True)
+    item4 = models.FloatField(verbose_name='本地用户权限(10分)', null=True, blank=True)
+    item5 = models.FloatField(verbose_name='ftpuser1用户权限(20分)', null=True, blank=True)
+    item6 = models.FloatField(verbose_name='ftpuser2用户权限(20分)', null=True, blank=True)
+    item7 = models.FloatField(verbose_name='用户限速配置(10分)', null=True, blank=True)
+    item8 = models.FloatField(verbose_name='用户连接数限制配置(10分)', null=True, blank=True)
+    total = models.FloatField(verbose_name='总分', null=True, blank=True)
+    # ...
+
+    class Meta:
+        db_table = 'exam_score_linux_10'
+        verbose_name = '服务器成绩10'
+        verbose_name_plural = verbose_name
+        unique_together = ('name', 'period')

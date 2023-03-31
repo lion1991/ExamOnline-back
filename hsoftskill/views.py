@@ -858,10 +858,29 @@ class InsertDatabase(APIView):
             except NameError:
                 # OfficeScoreModel doesn't exist, continue with other logic
                 pass
+
+        elif period == '10':
+            try:
+                if not (ScoreModel.objects.exists() or LinuxScoreModel.objects.exists()):
+                    for row in total_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
+                        name, network_score, linux_score = row
+                        score = ScoreModel(name=name, network_score=network_score, linux_score=linux_score)
+                        score.save()
+
+                    for row in linux_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
+                        name, item1, item2, item3, item4, item5, item6, item7, item8, total = row
+                        linux_score = LinuxScoreModel(name=name, item1=item1, item2=item2, item3=item3, item4=item4,
+                                                      item5=item5, item6=item6,  item7=item7, item8=item8, total=total)
+                        linux_score.save()
+
+                    return Response(data={'msg': '数据添加成功', 'code': 200}, status=200)
+                else:
+                    return Response(data={'msg': '添加失败，已经插入过数据', 'code': 403}, status=200)
+            except:
+                return Response(data={'msg': '未找到当前期数成绩信息', 'code': 404}, status=200)
+
         else:
             return Response(data={'msg': '未找到当前期数成绩信息', 'code': 404}, status=200)
-
-
 
 class GetAllPeriod(APIView):
     '''
@@ -893,7 +912,7 @@ class GetScore(APIView):
             LinuxScoreModel = apps.get_model('hsoftskill', linux_model_name)
             NetworkScoreModel = apps.get_model('hsoftskill', network_model_name)
             OfficeScoreModel = apps.get_model('hsoftskill', office_model_name)
-        except LookupError:
+        except:
             OfficeScoreModel = None
 
         if OfficeScoreModel is None:
@@ -941,8 +960,11 @@ class GetScore(APIView):
                 ]
         except:
             office_fields = []
-        return JsonResponse(
-            {'scores': list(scores), 'linux_scores': list(linux_scores), 'network_scores': list(network_scores),
-             'office_scores': list(office_scores),
-             'fields': fields, 'linux_fields': linux_fields, 'network_fields': network_fields, 'office_fields': office_fields}
-        )
+        try:
+            return JsonResponse(
+                {'scores': list(scores), 'linux_scores': list(linux_scores), 'network_scores': list(network_scores),
+                 'office_scores': list(office_scores),
+                 'fields': fields, 'linux_fields': linux_fields, 'network_fields': network_fields, 'office_fields': office_fields}
+            )
+        except:
+            return JsonResponse({'msg': '未找到当前期数成绩信息', 'code': 404})

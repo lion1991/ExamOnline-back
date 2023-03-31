@@ -6,7 +6,7 @@ from user.models import Department, Teacher, Student, UserRolesInfo
 from exam.models import Paper, Exam, Grade, Practice
 from question.models import Choice, ChoiceMu, Fill, Judge, Program
 from record.models import ChoiceRecord, ChoiceMuRecord, FillRecord, JudgeRecord, ProgramRecord
-from hsoftskill.models import LimitFile, RandomFileId, Files, PersonalGradeFiles, CaptainFiles, ExamFiles, JudgeFiles
+from hsoftskill.models import LimitFile, RandomFileId, Files, PersonalGradeFiles, CaptainFiles, ExamFiles, JudgeFiles, Score3, LinuxScore3, NetworkScore3, OfficeScore3, Score4, LinuxScore4, NetworkScore4, OfficeScore4, Score5, LinuxScore5, NetworkScore5, OfficeScore5, Score6, LinuxScore6, NetworkScore6, Score7, LinuxScore7, NetworkScore7, Score8, LinuxScore8, NetworkScore8, Score9, LinuxScore9, NetworkScore9, Score10, LinuxScore10
 
 class PermissionFilter(filters.FilterSet):
     content_type_text = filters.CharFilter(field_name="content_type")
@@ -225,3 +225,159 @@ class JudgeFilesFilter(filters.FilterSet):
     class Meta:
         model = JudgeFiles
         exclude = ["file"]
+
+class Score3Filter(filters.FilterSet):
+
+    class Meta:
+        model = Score3
+        exclude = []
+
+class LinuxScore3Filter(filters.FilterSet):
+
+    class Meta:
+        model = LinuxScore3
+        exclude = []
+
+class NetworkScore3Filter(filters.FilterSet):
+
+    class Meta:
+        model = NetworkScore3
+        exclude = []
+
+class OfficeScore3Filter(filters.FilterSet):
+
+    class Meta:
+        model = OfficeScore3
+        exclude = []
+
+class Score4Filter(filters.FilterSet):
+
+    class Meta:
+        model = Score4
+        exclude = []
+
+class LinuxScore4Filter(filters.FilterSet):
+
+    class Meta:
+        model = LinuxScore4
+        exclude = []
+
+class NetworkScore4Filter(filters.FilterSet):
+
+    class Meta:
+        model = NetworkScore4
+        exclude = []
+
+class OfficeScore4Filter(filters.FilterSet):
+
+    class Meta:
+        model = OfficeScore4
+        exclude = []
+
+class Score5Filter(filters.FilterSet):
+
+    class Meta:
+        model = Score5
+        exclude = []
+
+class LinuxScore5Filter(filters.FilterSet):
+
+    class Meta:
+        model = LinuxScore5
+        exclude = []
+
+class NetworkScore5Filter(filters.FilterSet):
+
+    class Meta:
+        model = NetworkScore5
+        exclude = []
+
+class OfficeScore5Filter(filters.FilterSet):
+
+    class Meta:
+        model = OfficeScore5
+        exclude = []
+
+class Score6Filter(filters.FilterSet):
+
+    class Meta:
+        model = Score6
+        exclude = []
+
+class LinuxScore6Filter(filters.FilterSet):
+
+    class Meta:
+        model = LinuxScore6
+        exclude = []
+
+class NetworkScore6Filter(filters.FilterSet):
+
+    class Meta:
+        model = NetworkScore6
+        exclude = []
+
+class Score7Filter(filters.FilterSet):
+
+    class Meta:
+        model = Score7
+        exclude = []
+
+class LinuxScore7Filter(filters.FilterSet):
+
+    class Meta:
+        model = LinuxScore7
+        exclude = []
+
+class NetworkScore7Filter(filters.FilterSet):
+
+    class Meta:
+        model = NetworkScore7
+        exclude = []
+
+class Score8Filter(filters.FilterSet):
+
+    class Meta:
+        model = Score8
+        exclude = []
+
+class LinuxScore8Filter(filters.FilterSet):
+
+    class Meta:
+        model = LinuxScore8
+        exclude = []
+
+class NetworkScore8Filter(filters.FilterSet):
+
+    class Meta:
+        model = NetworkScore8
+        exclude = []
+
+class Score9Filter(filters.FilterSet):
+
+    class Meta:
+        model = Score9
+        exclude = []
+
+class LinuxScore9Filter(filters.FilterSet):
+
+    class Meta:
+        model = LinuxScore9
+        exclude = []
+
+class NetworkScore9Filter(filters.FilterSet):
+
+    class Meta:
+        model = NetworkScore9
+        exclude = []
+
+class Score10Filter(filters.FilterSet):
+
+    class Meta:
+        model = Score10
+        exclude = []
+
+class LinuxScore10Filter(filters.FilterSet):
+
+    class Meta:
+        model = LinuxScore10
+        exclude = []
