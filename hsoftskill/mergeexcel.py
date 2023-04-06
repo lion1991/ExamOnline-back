@@ -97,6 +97,22 @@ class MakeExcel():
         return self.all_data3
 
     def startwork(self, filepath):
+        #数据初始化
+        self.biao_tou_total1_1 = "NULL"
+        self.biao_tou_total1_2 = "NULL"
+        self.biao_tou_total2_1 = "NULL"
+        self.biao_tou_total2_2 = "NULL"
+        self.biao_tou_total3_1 = "NULL"
+        self.biao_tou_total3_2 = "NULL"
+        self.wei_zhi = "NULL"
+        # 保存第一个sheet数据
+        self.all_data1 = []
+        # 保存第二个sheet数据
+        self.all_data2 = []
+        # 保存第三个sheet数据
+        self.all_data3 = []
+
+
         all_exce = self.get_exce(filepath)
         sheets_count = 0  #存放考核分类数量
         examtype = ''
@@ -153,8 +169,9 @@ class MakeExcel():
         except:
             print("sheet2不存在")
         try:
-            self.all_data3.insert(0, self.biao_tou_total3_2)
-            self.all_data3.insert(0, self.biao_tou_total3_1)
+            if sheets_count > 2:
+                self.all_data3.insert(0, self.biao_tou_total3_2)
+                self.all_data3.insert(0, self.biao_tou_total3_1)
         except:
             print("sheet3不存在")
         # 表头写入
@@ -191,25 +208,25 @@ class MakeExcel():
         except:
             print("sheet2不存在,合成表无数据写入。")
         try:
-            for i in range(len(self.all_data3)):
-                for j in range(len(self.all_data3[i])):
-                    c = self.all_data3[i][j]
-                    new_sheet3.write(i, j, c)
+            if sheets_count > 2:
+                for i in range(len(self.all_data3)):
+                    for j in range(len(self.all_data3[i])):
+                        c = self.all_data3[i][j]
+                        new_sheet3.write(i, j, c)
         except:
             print("sheet3不存在,合成表无数据写入。")
         fh1.close()
         # 关闭该exce表
 
-        print("文件合并成功,请查看“" + self.wei_zhi + "”目录下的总数据.xlsx文件！")
+        print("文件合并成功,请查看“" + self.wei_zhi + "”目录下的评分汇总.xlsx文件！")
+
+        #开始修改格式
 
         workbook = load_workbook(filename=self.wei_zhi + '评分汇总.xlsx')
         font = Font(name='宋体', size=18, bold=True)
-        sheetnames = workbook.sheetnames
-        print(sheetnames)
+        # sheetnames = workbook.sheetnames
         # mo_sheet = workbook[sheetnames[0]]
         # mo_sheet['A1'].font = font
-
-
         #修改边框
         border = Border(left=Side(border_style='thin'),
                         right=Side(border_style='thin'),
