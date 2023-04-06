@@ -98,6 +98,8 @@ class MakeExcel():
 
     def startwork(self, filepath):
         all_exce = self.get_exce(filepath)
+        sheets_count = 0  #存放考核分类数量
+        examtype = ''
         # 得到要合并的所有exce表格数据
         if (all_exce == 0):
             print("该目录下无.xlsx文件！请检查您输入的目录是否有误！")
@@ -109,7 +111,14 @@ class MakeExcel():
             fh = self.open_exce(exce)
             # 打开文件
             sheets = self.get_sheet(fh)
-            print(sheets)
+            examname = str(sheets[1])
+            if "服务器" in examname:
+                examtype = '服务器题'
+            else:
+                examtype = '数通题'
+            # print(sheet_name)
+            sheets_count = len(sheets)
+
             # 获取文件下的sheet数量
 
             for sheet in range(len(sheets)):
@@ -120,20 +129,34 @@ class MakeExcel():
                 while sheet == 0:
                     sheet1 = self.get_sheet_data(sheets[sheet], row)
                     break
-                while sheet == 1:
-                    sheet2 = self.get_sheet_data2(sheets[sheet], row)
-                    break
-                while sheet == 2:
-                    sheet3 = self.get_sheet_data3(sheets[sheet], row)
-                    break
+                try:
+                    while sheet == 1:
+                        sheet2 = self.get_sheet_data2(sheets[sheet], row)
+                        break
+                except:
+                    print("sheet2不存在")
+                try:
+                    while sheet == 2:
+                        sheet3 = self.get_sheet_data3(sheets[sheet], row)
+                        break
+                except:
+                    print("sheet3不存在")
                 # 获取一个sheet下的所有行的数据
-
-        self.all_data1.insert(0, self.biao_tou_total1_2)
-        self.all_data1.insert(0, self.biao_tou_total1_1)
-        self.all_data2.insert(0, self.biao_tou_total2_2)
-        self.all_data2.insert(0, self.biao_tou_total2_1)
-        self.all_data3.insert(0, self.biao_tou_total3_2)
-        self.all_data3.insert(0, self.biao_tou_total3_1)
+        try:
+            self.all_data1.insert(0, self.biao_tou_total1_2)
+            self.all_data1.insert(0, self.biao_tou_total1_1)
+        except:
+            print("sheet1不存在")
+        try:
+            self.all_data2.insert(0, self.biao_tou_total2_2)
+            self.all_data2.insert(0, self.biao_tou_total2_1)
+        except:
+            print("sheet2不存在")
+        try:
+            self.all_data3.insert(0, self.biao_tou_total3_2)
+            self.all_data3.insert(0, self.biao_tou_total3_1)
+        except:
+            print("sheet3不存在")
         # 表头写入
 
 
@@ -143,27 +166,37 @@ class MakeExcel():
 
         fh1 = xlsxwriter.Workbook(new_exce)
         # 新建一个exce表
-
-        new_sheet1 = fh1.add_worksheet()
-        new_sheet2 = fh1.add_worksheet()
-        new_sheet3 = fh1.add_worksheet()
+        print(sheets_count)
+        try:
+            new_sheet1 = fh1.add_worksheet()
+            new_sheet2 = fh1.add_worksheet()
+            if sheets_count > 2:
+                new_sheet3 = fh1.add_worksheet()
+        except:
+            print("创建新表格sheet出错")
         # 新建一个sheet表
         # 写入sheet表数据
-        for i in range(len(self.all_data1)):
-            for j in range(len(self.all_data1[i])):
-                c = self.all_data1[i][j]
-                new_sheet1.write(i, j, c)
-
-        for i in range(len(self.all_data2)):
-            for j in range(len(self.all_data2[i])):
-                c = self.all_data2[i][j]
-                new_sheet2.write(i, j, c)
-
-        for i in range(len(self.all_data3)):
-            for j in range(len(self.all_data3[i])):
-                c = self.all_data3[i][j]
-                new_sheet3.write(i, j, c)
-
+        try:
+            for i in range(len(self.all_data1)):
+                for j in range(len(self.all_data1[i])):
+                    c = self.all_data1[i][j]
+                    new_sheet1.write(i, j, c)
+        except:
+            print("sheet1不存在,合成表无数据写入。")
+        try:
+            for i in range(len(self.all_data2)):
+                for j in range(len(self.all_data2[i])):
+                    c = self.all_data2[i][j]
+                    new_sheet2.write(i, j, c)
+        except:
+            print("sheet2不存在,合成表无数据写入。")
+        try:
+            for i in range(len(self.all_data3)):
+                for j in range(len(self.all_data3[i])):
+                    c = self.all_data3[i][j]
+                    new_sheet3.write(i, j, c)
+        except:
+            print("sheet3不存在,合成表无数据写入。")
         fh1.close()
         # 关闭该exce表
 
@@ -171,7 +204,8 @@ class MakeExcel():
 
         workbook = load_workbook(filename=self.wei_zhi + '评分汇总.xlsx')
         font = Font(name='宋体', size=18, bold=True)
-        # sheetnames = workbook.sheetnames
+        sheetnames = workbook.sheetnames
+        print(sheetnames)
         # mo_sheet = workbook[sheetnames[0]]
         # mo_sheet['A1'].font = font
 
@@ -189,13 +223,17 @@ class MakeExcel():
                     if cell.value or cell.value == 0:
                         cell.border = border
                         cell.alignment = alignment
-
-        mo_sheet_one = workbook['Sheet1']
-        mo_sheet_one.title = '总成绩'
-        mo_sheet_two = workbook['Sheet2']
-        mo_sheet_two.title = '第一题'
-        mo_sheet_three = workbook['Sheet3']
-        mo_sheet_three.title = '第二题'
+        if sheets_count > 2:
+            mo_sheet_one = workbook['Sheet1']
+            mo_sheet_one.title = '总成绩'
+            mo_sheet_two = workbook['Sheet2']
+            mo_sheet_two.title = examtype
+            mo_sheet_three = workbook['Sheet3']
+        else:
+            mo_sheet_one = workbook['Sheet1']
+            mo_sheet_one.title = '总成绩'
+            mo_sheet_two = workbook['Sheet2']
+            mo_sheet_two.title = examtype
         #设置指定列宽
 
         #获取表1总列数
@@ -244,29 +282,35 @@ class MakeExcel():
                 _chr = chr(ord(_chr) + 1)
 
         #对表3进行列宽设置
-        _chr = 'A'
-        #获取表3总列数
-        column_count3 = mo_sheet_three.max_column
-        for i in range(column_count3):
+        if sheets_count > 2:
+            _chr = 'A'
+            #获取表3总列数
+            column_count3 = mo_sheet_three.max_column
+            for i in range(column_count3):
 
-            if i == 0:
-                mo_sheet_three.column_dimensions[chr(ord(_chr))].width = 5
-                _chr = chr(ord(_chr) + 1)
-                continue
-            if i == 1:
-                mo_sheet_three.column_dimensions[chr(ord(_chr))].width = 10
-                _chr = chr(ord(_chr) + 1)
-                continue
-            else:
-                # print(chr(ord(_chr)))
-                mo_sheet_three.column_dimensions[chr(ord(_chr))].width = 20
-                _chr = chr(ord(_chr) + 1)
+                if i == 0:
+                    mo_sheet_three.column_dimensions[chr(ord(_chr))].width = 5
+                    _chr = chr(ord(_chr) + 1)
+                    continue
+                if i == 1:
+                    mo_sheet_three.column_dimensions[chr(ord(_chr))].width = 10
+                    _chr = chr(ord(_chr) + 1)
+                    continue
+                else:
+                    # print(chr(ord(_chr)))
+                    mo_sheet_three.column_dimensions[chr(ord(_chr))].width = 20
+                    _chr = chr(ord(_chr) + 1)
 
 
         #合并表1单元格
-        mo_sheet_one.merge_cells(start_row=1, start_column=3, end_row=1, end_column=4)
-        mo_sheet_one.merge_cells(start_row=1, start_column=1, end_row=2, end_column=1)
-        mo_sheet_one.merge_cells(start_row=1, start_column=2, end_row=2, end_column=2)
+        if sheets_count > 2:
+            mo_sheet_one.merge_cells(start_row=1, start_column=3, end_row=1, end_column=4)
+            mo_sheet_one.merge_cells(start_row=1, start_column=1, end_row=2, end_column=1)
+            mo_sheet_one.merge_cells(start_row=1, start_column=2, end_row=2, end_column=2)
+        else:
+            mo_sheet_one.merge_cells(start_row=1, start_column=3, end_row=1, end_column=3)
+            mo_sheet_one.merge_cells(start_row=1, start_column=1, end_row=2, end_column=1)
+            mo_sheet_one.merge_cells(start_row=1, start_column=2, end_row=2, end_column=2)
 
         # 合并表2单元格
         mo_sheet_two.merge_cells(start_row=1, start_column=1, end_row=2, end_column=1)
@@ -290,34 +334,36 @@ class MakeExcel():
 
         mo_sheet_two.merge_cells(start_row=1, start_column=init_value[0], end_row=1, end_column=init_value[1])
         # 合并表3单元格
-        mo_sheet_three.merge_cells(start_row=1, start_column=1, end_row=2, end_column=1)
-        mo_sheet_three.merge_cells(start_row=1, start_column=2, end_row=2, end_column=2)
-        row_values = []
-        init_value = []
-        row_num = 0
-        increase_num = 0
-        for row in mo_sheet_three.iter_rows(min_col=1, max_col=mo_sheet_three.max_column, max_row=1):
-            # row_values.append([cell.value for cell in row])
-            for cell in row:
-                if cell.value == '总分':
-                    init_value.append(increase_num)
-                elif cell.value != None:
-                    increase_num += 1
-                    row_num += 1
-                elif cell.value == None:
-                    increase_num += 1
-                    if row_num not in init_value:
-                        init_value.append(row_num)
+        if sheets_count > 2:
+            mo_sheet_three.merge_cells(start_row=1, start_column=1, end_row=2, end_column=1)
+            mo_sheet_three.merge_cells(start_row=1, start_column=2, end_row=2, end_column=2)
+            row_values = []
+            init_value = []
+            row_num = 0
+            increase_num = 0
+            for row in mo_sheet_three.iter_rows(min_col=1, max_col=mo_sheet_three.max_column, max_row=1):
+                # row_values.append([cell.value for cell in row])
+                for cell in row:
+                    if cell.value == '总分':
+                        init_value.append(increase_num)
+                    elif cell.value != None:
+                        increase_num += 1
+                        row_num += 1
+                    elif cell.value == None:
+                        increase_num += 1
+                        if row_num not in init_value:
+                            init_value.append(row_num)
 
-        mo_sheet_three.merge_cells(start_row=1, start_column=init_value[0], end_row=1, end_column=init_value[1])
+            mo_sheet_three.merge_cells(start_row=1, start_column=init_value[0], end_row=1, end_column=init_value[1])
 
         #对序号排序
         for i in range(3, mo_sheet_one.max_row + 1):
             mo_sheet_one.cell(row=i, column=1).value = i-2
         for i in range(3, mo_sheet_two.max_row + 1):
             mo_sheet_two.cell(row=i, column=1).value = i-2
-        for i in range(3, mo_sheet_three.max_row + 1):
-            mo_sheet_three.cell(row=i, column=1).value = i-2
+        if sheets_count > 2:
+            for i in range(3, mo_sheet_three.max_row + 1):
+                mo_sheet_three.cell(row=i, column=1).value = i-2
 
         #设置行高
         for row in range(1,mo_sheet_one.max_row + 1):
@@ -327,10 +373,11 @@ class MakeExcel():
                 mo_sheet_two.row_dimensions[row].height = 55
             else:
                 mo_sheet_two.row_dimensions[row].height = 30
-        for row in range(1,mo_sheet_three.max_row + 1):
-            if row == 2:
-                mo_sheet_three.row_dimensions[row].height = 55
-            else:
-                mo_sheet_three.row_dimensions[row].height = 30
+        if sheets_count > 2:
+            for row in range(1,mo_sheet_three.max_row + 1):
+                if row == 2:
+                    mo_sheet_three.row_dimensions[row].height = 55
+                else:
+                    mo_sheet_three.row_dimensions[row].height = 30
 
         workbook.save(self.wei_zhi + '评分汇总.xlsx')
