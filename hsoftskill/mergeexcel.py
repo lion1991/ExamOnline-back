@@ -8,6 +8,17 @@ from openpyxl.styles import Side, Border
 from openpyxl.styles import Font
 from openpyxl.utils import get_column_letter
 class MakeExcel():
+    # exam_user = ['葛秀峰', '李健卓', '薛俞同', '王金龙', '殷晓宇', '徐嘉霖', '刘哲', '柯鹏飞', '刘树国', '季恩光', '张成全',
+    #              '王彦淇', '汪鑫泽', '邵成', '赵宇轩', '郭大利', '王景东', '王超', '关涛', '王旭明', '王景鑫', '霍锳林', '高智勇',
+    #              '张德龙', '姜超', '董洋', '李幸龙', '刘泽鹏', '冷步凡', '刘博', '焉海龙', '姜伟宁', '杜伟', '陈懋峰', '赵鑫宇',
+    #              '田照明', '吕俊鹏', '吕云鹏', '杨枭', '朱玉', '梅杰', '于利强', '宋云鹏', '张士文', '汪浩炀', '夏思豪']
+    name_dict =  {1 : '葛秀峰', 2 : '李健卓', 3 : '薛俞同', 4 : '王金龙', 5 : '殷晓宇', 6 : '徐嘉霖', 7 : '刘哲', 8 : '柯鹏飞',
+                  9 : '刘树国', 10 : '季恩光', 11 : '张成全', 12 : '王彦淇', 13 : '汪鑫泽', 14 : '邵成', 15 : '赵宇轩',
+                  16 : '郭大利', 17 : '王景东', 18 : '王超', 19 : '关涛', 20 : '王旭明', 21 : '王景鑫', 22 : '霍锳林',
+                  23 : '高智勇', 24 : '张德龙', 25 : '姜超', 26 : '董洋', 27 : '李幸龙', 28 : '刘泽鹏', 29 :'冷步凡', 30 : '刘博',
+                  31 : '焉海龙', 32 : '姜伟宁', 33 : '杜伟', 34 : '陈懋峰', 35 : '赵鑫宇', 36 : '田照明', 37 : '吕俊鹏',
+                  38 : '吕云鹏', 39 : '杨枭', 40 : '朱玉', 41 : '梅杰', 42 : '于利强', 43 : '宋云鹏', 44 : '张士文', 45 : '汪浩炀',
+                  46 : '夏思豪'}
     biao_tou_total1_1 = "NULL"
     biao_tou_total1_2 = "NULL"
     biao_tou_total2_1 = "NULL"
@@ -141,7 +152,7 @@ class MakeExcel():
                 # print(sheet)
                 row = self.get_sheetrow_num(sheets[sheet])
                 # print(row)
-                # 获取一个sheet下的所有的数据的行数
+                # 获取原表中一个sheet下的所有的数据的行数
                 while sheet == 0:
                     sheet1 = self.get_sheet_data(sheets[sheet], row)
                     break
@@ -219,6 +230,63 @@ class MakeExcel():
         # 关闭该exce表
 
         print("文件合并成功,请查看“" + self.wei_zhi + "”目录下的评分汇总.xlsx文件！")
+
+        #找出未上传答题的人员加入表格最后
+
+        # 打开 Excel 文件
+        workbook = load_workbook(filename=self.wei_zhi + '评分汇总.xlsx')
+
+        # # 遍历工作簿中的所有工作表
+        # for sheet in workbook:
+        #     # 获取工作表的名称和工作表对象
+        #     sheet_name = sheet.title
+        #     sheet_data = sheet.values
+        #
+        #     # 跳过标题行和前两行
+        #     next(sheet_data)
+        #     next(sheet_data)
+        #     # 遍历第二列第三行开始的所有单元格，并将其添加到集合中
+        #     cell_values = set()
+        #     for row in sheet_data:
+        #         cell_value = row[1]
+        #         if cell_value:
+        #             cell_values.add(cell_value)
+        #
+        #     for value in self.exam_user:
+        #         if value not in cell_values:
+        #             max_row = sheet.max_row
+        #             new_row = [max_row + 1, value]
+        #             for i in range(3, sheet.max_column + 1):
+        #                 new_row.append(0)
+        #             sheet.append(new_row)
+
+        # 遍历工作簿中的所有工作表
+        for sheet in workbook:
+            # 获取工作表的名称和工作表对象
+            sheet_name = sheet.title
+            sheet_data = sheet.values
+
+            # 跳过标题行和前两行
+            next(sheet_data)
+            next(sheet_data)
+            # 遍历第二列第三行开始的所有单元格，并将其添加到集合中
+            cell_values = set()
+            for row in sheet_data:
+                cell_value = row[1]
+                if cell_value:
+                    cell_values.add(cell_value)
+
+            # 查找字典中没有的姓名
+            for key, value in self.name_dict.items():
+                if value not in cell_values:
+                    max_row = sheet.max_row
+                    new_row = [key, value]
+                    for i in range(3, sheet.max_column + 1):
+                        new_row.append(0)
+                    sheet.append(new_row)
+            cell_values.clear()
+        # 保存 Excel 文件
+        workbook.save(self.wei_zhi + '评分汇总.xlsx')
 
         #开始修改格式
 
@@ -374,13 +442,37 @@ class MakeExcel():
             mo_sheet_three.merge_cells(start_row=1, start_column=init_value[0], end_row=1, end_column=init_value[1])
 
         #对序号排序
-        for i in range(3, mo_sheet_one.max_row + 1):
-            mo_sheet_one.cell(row=i, column=1).value = i-2
-        for i in range(3, mo_sheet_two.max_row + 1):
-            mo_sheet_two.cell(row=i, column=1).value = i-2
-        if sheets_count > 2:
-            for i in range(3, mo_sheet_three.max_row + 1):
-                mo_sheet_three.cell(row=i, column=1).value = i-2
+        # for i in range(3, mo_sheet_one.max_row + 1):
+        #     mo_sheet_one.cell(row=i, column=1).value = i-2
+        # for i in range(3, mo_sheet_two.max_row + 1):
+        #     mo_sheet_two.cell(row=i, column=1).value = i-2
+        # if sheets_count > 2:
+        #     for i in range(3, mo_sheet_three.max_row + 1):
+        #         mo_sheet_three.cell(row=i, column=1).value = i-2
+        #定义临时列表存放数据
+        data = []
+        #开始按照序号从小到大排序第一个工作表
+        for row in mo_sheet_one.iter_rows(min_row=3, values_only=True):
+            data.append(row)
+        data.sort(key=lambda x: x[0])
+        for i, row in enumerate(data):
+            for j, cell in enumerate(row):
+                mo_sheet_one.cell(row=i + 3, column=j + 1).value = cell
+        data.clear()
+        # 打印工作表的内容
+        # for row in mo_sheet_one.values:
+        #     print(row)
+        #开始按照序号从小到大排序第二个工作表
+        for row in mo_sheet_two.iter_rows(min_row=3, values_only=True):
+            data.append(row)
+        data.sort(key=lambda x: x[0])
+        for i, row in enumerate(data):
+            for j, cell in enumerate(row):
+                mo_sheet_two.cell(row=i + 3, column=j + 1).value = cell
+        data.clear()
+        # 打印工作表的内容
+        # for row in mo_sheet_two.values:
+        #     print(row)
 
         #设置行高
         for row in range(1,mo_sheet_one.max_row + 1):

@@ -863,8 +863,8 @@ class InsertDatabase(APIView):
             try:
                 if not (ScoreModel.objects.exists() or LinuxScoreModel.objects.exists()):
                     for row in total_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
-                        name, network_score, linux_score = row
-                        score = ScoreModel(name=name, network_score=network_score, linux_score=linux_score)
+                        name, linux_score = row
+                        score = ScoreModel(name=name, linux_score=linux_score)
                         score.save()
 
                     for row in linux_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
