@@ -621,16 +621,21 @@ class InsertDatabase(APIView):
         # 读取Excel文件
         wb = openpyxl.load_workbook(filerootpath +'/judge/exam' + period + '/评分汇总.xlsx')
 
-        try:
-            total_sheet = wb['总成绩']
-            network_sheet = wb['数通题']
-            linux_sheet = wb['服务器题']
-            office_sheet = wb['文档题']
-        except LookupError:
-            office_sheet = None
-        if office_sheet is None:
-            pass
+        sheet_names = ['总成绩', '数通题', '服务器题', '文档题']
+        sheets = {}
 
+        for sheet_name in sheet_names:
+            try:
+                sheets[sheet_name] = wb[sheet_name]
+            except Exception as e:
+                print(e)
+                pass
+
+        total_sheet = sheets.get('总成绩')
+        network_sheet = sheets.get('数通题')
+        linux_sheet = sheets.get('服务器题')
+        office_sheet = sheets.get('文档题')
+        print(linux_sheet)
         # 读取数据
         if period == '3':
             try:
@@ -876,8 +881,9 @@ class InsertDatabase(APIView):
                     return Response(data={'msg': '数据添加成功', 'code': 200}, status=200)
                 else:
                     return Response(data={'msg': '添加失败，已经插入过数据', 'code': 403}, status=200)
-            except:
-                return Response(data={'msg': '未找到当前期数成绩信息', 'code': 404}, status=200)
+            except Exception as e:
+                print(e)
+                return Response(data={'msg': '插入失败，请查看报错信息', 'code': 404}, status=200)
 
         else:
             return Response(data={'msg': '未找到当前期数成绩信息', 'code': 404}, status=200)

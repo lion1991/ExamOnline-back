@@ -656,7 +656,7 @@ class NetworkScore9(models.Model):
 class Score10(models.Model):
     name = models.CharField(max_length=100, verbose_name='姓名')
     linux_score = models.FloatField(verbose_name='服务器成绩', null=True, blank=True)
-    period = models.IntegerField(verbose_name='考核期数', default=9)
+    period = models.IntegerField(verbose_name='考核期数', default=10)
 
     class Meta:
         db_table = 'exam_score_total_10'
