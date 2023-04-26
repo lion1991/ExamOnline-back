@@ -684,3 +684,24 @@ class LinuxScore10(models.Model):
         verbose_name = '服务器成绩10'
         verbose_name_plural = verbose_name
         unique_together = ('name', 'period')
+
+#第十一期
+class NetworkScore11(models.Model):
+    name = models.CharField(max_length=100, verbose_name='姓名')
+    period = models.IntegerField(verbose_name='考核期数', default=11)
+    team = models.CharField(max_length=100, verbose_name='小组')
+    # 评分项列名
+    item1 = models.FloatField(verbose_name='按要求配置路由协议（10分）', null=True, blank=True)
+    item2 = models.FloatField(verbose_name='按要求配置IP地址（10分）', null=True, blank=True)
+    item3 = models.FloatField(verbose_name='解决客户端获取不到IP地址问题(20分)', null=True, blank=True)
+    item4 = models.FloatField(verbose_name='客户端按要求获取指定IP地址(20分)', null=True, blank=True)
+    item5 = models.FloatField(verbose_name='AR4/AR8 链路及chap认证正确，并使用本人姓名作为用户名密码，链路状态正常(10分', null=True, blank=True)
+    item6 = models.FloatField(verbose_name='10段、20段可以访问OA Service，70段、80段可以访问Mail Service(20分)', null=True, blank=True)
+    item7 = models.FloatField(verbose_name='其余网段不可访问非允许服务(10分)', null=True, blank=True)
+    total = models.FloatField(verbose_name='总分', null=True, blank=True)
+    # ...
+    class Meta:
+        db_table = 'exam_score_network_11'
+        verbose_name = '数通成绩11'
+        verbose_name_plural = verbose_name
+        unique_together = ('name', 'period')

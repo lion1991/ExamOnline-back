@@ -354,6 +354,8 @@ class FilePersion(APIView):
         # 获取上传目录下的所有文件名并随机排序
         upload_dir = filerootpath + "/exam" + str(period)
         file_names = os.listdir(upload_dir)
+        if "group_1.zip" in file_names:
+            return Response(data={'msg': '处理失败，目录下存在分组包', 'code': 400}, status=400)
         random.shuffle(file_names)
 
         # 计算每组文件数量
@@ -413,7 +415,7 @@ class MergeFile(APIView):
     def post(self, request):
         req = request.data
         period = (req['period'])
-        name = '评分汇总.xlsx'
+        name = '组员评分汇总.xlsx'
         filepath = "upload/judge/exam" + str(period) + "/"
         file = "upload/judge/exam" + str(period) + "/" + name
         try:
@@ -610,18 +612,27 @@ class InsertDatabase(APIView):
         office_model_name = 'OfficeScore' + period
         try:
             ScoreModel = apps.get_model('hsoftskill', score_model_name)
+        except LookupError:
+            ScoreModel = None
+        try:
             LinuxScoreModel = apps.get_model('hsoftskill', linux_model_name)
+        except LookupError:
+            LinuxScoreModel = None
+        try:
             NetworkScoreModel = apps.get_model('hsoftskill', network_model_name)
+        except LookupError:
+            NetworkScoreModel = None
+        try:
             OfficeScoreModel = apps.get_model('hsoftskill', office_model_name)
         except LookupError:
             OfficeScoreModel = None
-
+        print(NetworkScoreModel)
         if OfficeScoreModel is None:
             print("本期无文档题")
         # 读取Excel文件
-        wb = openpyxl.load_workbook(filerootpath +'/judge/exam' + period + '/评分汇总.xlsx')
+        wb = openpyxl.load_workbook(filerootpath +'/judge/exam' + period + '/组员评分汇总.xlsx')
 
-        sheet_names = ['总成绩', '数通题', '服务器题', '文档题']
+        sheet_names = ['总成绩', '数通题', '服务器题', '文档题', '组员评分']
         sheets = {}
 
         for sheet_name in sheet_names:
@@ -631,11 +642,15 @@ class InsertDatabase(APIView):
                 print(e)
                 pass
 
-        total_sheet = sheets.get('总成绩')
-        network_sheet = sheets.get('数通题')
-        linux_sheet = sheets.get('服务器题')
-        office_sheet = sheets.get('文档题')
-        print(linux_sheet)
+        # total_sheet = sheets.get('总成绩')
+        # network_sheet = sheets.get('数通题')
+        # linux_sheet = sheets.get('服务器题')
+        # office_sheet = sheets.get('文档题')
+        total_sheet = sheets.get('组员评分')
+        network_sheet = sheets.get('组员评分')
+        linux_sheet = sheets.get('组员评分')
+        office_sheet = sheets.get('组员评分')
+
         # 读取数据
         if period == '3':
             try:
@@ -885,6 +900,22 @@ class InsertDatabase(APIView):
                 print(e)
                 return Response(data={'msg': '插入失败，请查看报错信息', 'code': 404}, status=200)
 
+        elif period == '11':
+            try:
+                if not (NetworkScoreModel.objects.exists()):
+                    for row in network_sheet.iter_rows(min_row=2, min_col=2, values_only=True):
+                        team, name, item1, item2, item3, item4, item5, item6, item7,total = row
+                        network_score = NetworkScoreModel(team=team, name=name, item1=item1, item2=item2, item3=item3
+                                                          , item4=item4, item5=item5, item6=item6, item7=item7, total=total)
+                        network_score.save()
+
+                    return Response(data={'msg': '数据添加成功', 'code': 200}, status=200)
+                else:
+                    return Response(data={'msg': '添加失败，已经插入过数据', 'code': 403}, status=200)
+            except Exception as e:
+                print(e)
+                return Response(data={'msg': '插入失败，请查看报错信息', 'code': 404}, status=200)
+
         else:
             return Response(data={'msg': '未找到当前期数成绩信息', 'code': 404}, status=200)
 
@@ -915,8 +946,17 @@ class GetScore(APIView):
         office_model_name = 'OfficeScore' + period
         try:
             ScoreModel = apps.get_model('hsoftskill', score_model_name)
+        except:
+            ScoreModel = None
+        try:
             LinuxScoreModel = apps.get_model('hsoftskill', linux_model_name)
+        except:
+            LinuxScoreModel = None
+        try:
             NetworkScoreModel = apps.get_model('hsoftskill', network_model_name)
+        except:
+            NetworkScoreModel = None
+        try:
             OfficeScoreModel = apps.get_model('hsoftskill', office_model_name)
         except:
             OfficeScoreModel = None
