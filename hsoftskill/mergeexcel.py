@@ -73,11 +73,11 @@ class MakeExcel():
             if (i == 0):
                 self.biao_tou_total1_1 = sheet.row_values(i)
                 continue
-            if (i == 1):
-                self.biao_tou_total1_2 = sheet.row_values(i)
-                continue
+            # if (i == 1):
+            #     self.biao_tou_total1_2 = sheet.row_values(i)
+            #     continue
             values = sheet.row_values(i)
-            # print(values)
+            print(values)
             self.all_data1.append(values)
 
         return self.all_data1
@@ -177,7 +177,7 @@ class MakeExcel():
                 #     print("sheet3不存在")
                 # 获取一个sheet下的所有行的数据
         try:
-            self.all_data1.insert(0, self.biao_tou_total1_2)
+            # self.all_data1.insert(0, self.biao_tou_total1_2)
             self.all_data1.insert(0, self.biao_tou_total1_1)
         except:
             print("sheet1不存在")
