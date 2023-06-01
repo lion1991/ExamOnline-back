@@ -916,6 +916,22 @@ class InsertDatabase(APIView):
                 print(e)
                 return Response(data={'msg': '插入失败，请查看报错信息', 'code': 404}, status=200)
 
+        elif period == '12':
+            try:
+                if not (LinuxScoreModel.objects.exists()):
+                    for row in linux_sheet.iter_rows(min_row=2, min_col=2, values_only=True):
+                        team, name, item1, item2, item3, item4, item5, item6, item7,total = row
+                        linux_score = LinuxScoreModel(team=team, name=name, item1=item1, item2=item2, item3=item3
+                                                          , item4=item4, item5=item5, item6=item6, item7=item7, total=total)
+                        linux_score.save()
+
+                    return Response(data={'msg': '数据添加成功', 'code': 200}, status=200)
+                else:
+                    return Response(data={'msg': '添加失败，已经插入过数据', 'code': 403}, status=200)
+            except Exception as e:
+                print(e)
+                return Response(data={'msg': '插入失败，请查看报错信息', 'code': 404}, status=200)
+
         else:
             return Response(data={'msg': '未找到当前期数成绩信息', 'code': 404}, status=200)
 

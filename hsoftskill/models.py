@@ -705,3 +705,25 @@ class NetworkScore11(models.Model):
         verbose_name = '数通成绩11'
         verbose_name_plural = verbose_name
         unique_together = ('name', 'period')
+
+#第十二期
+class LinuxScore12(models.Model):
+    name = models.CharField(max_length=100, verbose_name='姓名')
+    period = models.IntegerField(verbose_name='考核期数', default=12)
+    team = models.CharField(max_length=100, verbose_name='小组')
+    # 评分项列名
+    item1 = models.FloatField(verbose_name='安装并启动httpd服务(10分)', null=True, blank=True)
+    item2 = models.FloatField(verbose_name='开机自启动httpd服务(10分)', null=True, blank=True)
+    item3 = models.FloatField(verbose_name='创建虚拟主机配置文件(10分)', null=True, blank=True)
+    item4 = models.FloatField(verbose_name='设置虚拟主机目录、端口(10分)', null=True, blank=True)
+    item5 = models.FloatField(verbose_name='设置虚拟主机权限(15分)', null=True, blank=True)
+    item6 = models.FloatField(verbose_name='设置虚拟主机日志(15分)', null=True, blank=True)
+    item7 = models.FloatField(verbose_name='设置虚拟主机域名及权限(30分)', null=True, blank=True)
+    total = models.FloatField(verbose_name='总分', null=True, blank=True)
+    # ...
+
+    class Meta:
+        db_table = 'exam_score_linux_12'
+        verbose_name = '服务器成绩12'
+        verbose_name_plural = verbose_name
+        unique_together = ('name', 'period')
