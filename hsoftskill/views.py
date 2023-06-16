@@ -23,7 +23,10 @@ from exam.views import CommonPagination
 from hsoftskill.filevars import fileuserid, qj_userid, ljj_userid, wcl_userid, ybw_userid, wy_userid, \
     captainName, downloadlink, lc_userid ,filerootpath
 from hsoftskill import serializers, robot, mergeexcel
-from hsoftskill.models import Files, LimitFile, RandomFileId, CaptainFiles, ExamFiles, JudgeFiles, PersonalGradeFiles
+from hsoftskill.models import Files, LimitFile, RandomFileId, CaptainFiles, ExamFiles, JudgeFiles, PersonalGradeFiles, \
+    Subject
+
+
 #from tyadmin_api.auto_serializers import FilesListSerializer
 #from tyadmin_api.auto_views import FilesViewSet
 #from tyadmin_api.custom import XadminViewSet
@@ -592,12 +595,15 @@ class UploadedEmployee(APIView):
         print(ser.data)
         return Response(data={'data':ser.data, 'msg': '处理成功', 'code': 200}, status=200)
 
-import openpyxl
-from django.apps import apps
+import pandas as pd
+from .models import Student, Score
 class InsertDatabase(APIView):
-
+    """
+    将excel数据插入数据库中
+    """
     authentication_classes = []
     permission_classes = []
+
     def post(self, request):
         # 获取前端请求插入数据库的期数
         body_unicode = request.body.decode('utf-8')
@@ -605,335 +611,404 @@ class InsertDatabase(APIView):
         period = body.get('period', '')
         period = str(period)
 
-        # 根据相应的期数获取需要写入的模型类
-        score_model_name = 'Score' + period
-        linux_model_name = 'LinuxScore' + period
-        network_model_name = 'NetworkScore' + period
-        office_model_name = 'OfficeScore' + period
-        try:
-            ScoreModel = apps.get_model('hsoftskill', score_model_name)
-        except LookupError:
-            ScoreModel = None
-        try:
-            LinuxScoreModel = apps.get_model('hsoftskill', linux_model_name)
-        except LookupError:
-            LinuxScoreModel = None
-        try:
-            NetworkScoreModel = apps.get_model('hsoftskill', network_model_name)
-        except LookupError:
-            NetworkScoreModel = None
-        try:
-            OfficeScoreModel = apps.get_model('hsoftskill', office_model_name)
-        except LookupError:
-            OfficeScoreModel = None
-        print(NetworkScoreModel)
-        if OfficeScoreModel is None:
-            print("本期无文档题")
-        # 读取Excel文件
-        wb = openpyxl.load_workbook(filerootpath +'/judge/exam' + period + '/组员评分汇总.xlsx')
-
-        sheet_names = ['总成绩', '数通题', '服务器题', '文档题', '组员评分']
-        sheets = {}
-
-        for sheet_name in sheet_names:
+        subjects = {
+            '组员评分': '组员',
+            '组长评分': '组长',
+            '第七组评分': '初阶',
+            '服务器评分': '服务器',
+            '数通评分': '数通',
+            '文档评分': '文档',
+        }
+        for sheet_name, subject_name in subjects.items():
             try:
-                sheets[sheet_name] = wb[sheet_name]
+                df = pd.read_excel(filerootpath + '/judge/exam' + period + '/评分汇总.xlsx', sheet_name=sheet_name)
+
+                # 获取科目对象
+                subject = Subject.objects.get(name=subject_name)
+
+                # 读取序号、分组、姓名
+                serial_numbers = df.iloc[:, 0]
+                groups = df.iloc[:, 1]
+                student_names = df.iloc[:, 2]
+
+                # 遍历每一行数据
+                for i in range(len(df)):
+                    serial_number = serial_numbers[i]
+                    group = groups[i]
+                    student_name = student_names[i]
+
+                    # 使用学生姓名查询学生对象
+                    user = Student.objects.get(name=student_name)
+                    # 将每一行数据转换为一个字典，注意这里是从第4列开始的
+                    scores = df.iloc[i, 3:].to_dict()
+
+                    # 创建一个新的Score对象并保存到数据库中
+                    if not Score.objects.filter(user=user, period=period, subject=subject).exists():
+                        Score.objects.create(
+                            user=user,
+                            scores=json.dumps(scores, ensure_ascii=False),
+                            period=period,
+                            serial_number=serial_number,
+                            group=group,
+                            subject=subject
+                        )
+                    else:
+                        print("此数据已存在")
+            except FileNotFoundError:
+                return JsonResponse({'msg': '未找到当前期数成绩信息', 'code': 200})
             except Exception as e:
-                print(e)
-                pass
-
-        # total_sheet = sheets.get('总成绩')
-        # network_sheet = sheets.get('数通题')
-        # linux_sheet = sheets.get('服务器题')
-        # office_sheet = sheets.get('文档题')
-        total_sheet = sheets.get('组员评分')
-        network_sheet = sheets.get('组员评分')
-        linux_sheet = sheets.get('组员评分')
-        office_sheet = sheets.get('组员评分')
-
-        # 读取数据
-        if period == '3':
-            try:
-                if not (ScoreModel.objects.exists() or LinuxScoreModel.objects.exists() or NetworkScoreModel.objects.exists()
-                        or OfficeScoreModel.objects.exists()):
-
-                    for row in total_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
-                        name, office_score, network_score, linux_score = row
-                        score = ScoreModel(name=name, office_score=office_score, network_score=network_score,
-                                           linux_score=linux_score)
-                        score.save()
-
-                    for row in linux_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
-                        name, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, total = row
-                        linux_score = LinuxScoreModel(name=name, item1=item1, item2=item2, item3=item3
-                                                      , item4=item4, item5=item5, item6=item6, item7=item7,
-                                                      item8=item8, item9=item9,  item10=item10, total=total)
-                        linux_score.save()
-
-                    for row in network_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
-                        name, item1, item2, item3, item4, item5, item6, item7, item8, total = row
-                        network_score = NetworkScoreModel(name=name, item1=item1, item2=item2, item3=item3
-                                , item4=item4, item5=item5, item6=item6, item7=item7, item8=item8, total=total)
-                        network_score.save()
-
-                    for row in office_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
-                        name, item1, item2, item3, item4, item5, item6, item7, item8, total = row
-                        office_score = OfficeScoreModel(name=name, item1=item1, item2=item2, item3=item3
-                                        , item4=item4, item5=item5, item6=item6, item7=item7, item8=item8, total=total)
-                        office_score.save()
-
-                    return Response(data={'msg': '数据添加成功', 'code': 200}, status=200)
+                # 忽略没有找到的sheet，可以根据需要添加其他异常处理
+                if 'No sheet named' in str(e):
+                    continue
+                elif 'not found' in str(e):
+                    continue
                 else:
-                    return Response(data={'msg': '添加失败，已经插入过数据', 'code': 403}, status=200)
-            # do something
-            except NameError:
-                # OfficeScoreModel doesn't exist, continue with other logic
-                pass
-        elif period == '4':
-            try:
-                if not (ScoreModel.objects.exists() or LinuxScoreModel.objects.exists() or NetworkScoreModel.objects.exists()
-                        or OfficeScoreModel.objects.exists()):
+                    raise e
+        return JsonResponse({'msg': '导入成功', 'code': 200})
 
-                    for row in total_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
-                        name, office_score, network_score, linux_score = row
-                        score = ScoreModel(name=name, office_score=office_score, network_score=network_score,
-                                           linux_score=linux_score)
-                        score.save()
 
-                    for row in linux_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
-                        name, item1, item2, item3, item4, item5, item6, item7, item8, item9,total = row
-                        linux_score = LinuxScoreModel(name=name, item1=item1, item2=item2, item3=item3
-                                                      , item4=item4, item5=item5, item6=item6, item7=item7,
-                                                      item8=item8, item9=item9, total=total)
-                        linux_score.save()
-
-                    for row in network_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
-                        name, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, total = row
-                        network_score = NetworkScoreModel(name=name, item1=item1, item2=item2, item3=item3
-                                , item4=item4, item5=item5, item6=item6, item7=item7, item8=item8
-                                                          , item9=item9, item10=item10, item11=item11, item12=item12, total=total)
-                        network_score.save()
-
-                    for row in office_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
-                        name, item1, item2, item3, item4, item5, item6, item7, item8, item9, total = row
-                        office_score = OfficeScoreModel(name=name, item1=item1, item2=item2, item3=item3
-                                                        , item4=item4, item5=item5, item6=item6, item7=item7, item8=item8,
-                                                        item9=item9, total=total)
-                        office_score.save()
-
-                    return Response(data={'msg': '数据添加成功', 'code': 200}, status=200)
-                else:
-                    return Response(data={'msg': '添加失败，已经插入过数据', 'code': 403}, status=200)
-            # do something
-            except NameError:
-                # OfficeScoreModel doesn't exist, continue with other logic
-                pass
-        elif period == '5':
-            try:
-                if not (ScoreModel.objects.exists() or LinuxScoreModel.objects.exists() or NetworkScoreModel.objects.exists()
-                        or OfficeScoreModel.objects.exists()):
-
-                    for row in total_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
-                        name, office_score, network_score, linux_score = row
-                        score = ScoreModel(name=name, office_score=office_score, network_score=network_score, linux_score=linux_score)
-                        score.save()
-
-                    for row in linux_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
-                        name, item1, item2, item3, item4, item5, item6, item7, total = row
-                        linux_score = LinuxScoreModel(name=name, item1=item1, item2=item2, item3=item3
-                                                      , item4=item4, item5=item5, item6=item6, item7=item7, total=total)
-                        linux_score.save()
-
-                    for row in network_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
-                        name, item1, item2, item3, item4, item5, item6, item7, total = row
-                        network_score = NetworkScoreModel(name=name, item1=item1, item2=item2, item3=item3
-                                                          , item4=item4, item5=item5, item6=item6, item7=item7, total=total)
-                        network_score.save()
-
-                    for row in office_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
-                        name, item1, item2, item3, item4, item5, item6, item7, item8,total = row
-                        office_score = OfficeScoreModel(name=name, item1=item1, item2=item2, item3=item3
-                                            , item4=item4, item5=item5, item6=item6, item7=item7, item8=item8, total=total)
-                        office_score.save()
-
-                    return Response(data={'msg': '数据添加成功', 'code': 200}, status=200)
-                else:
-                    return Response(data={'msg': '添加失败，已经插入过数据', 'code': 403}, status=200)
-            # do something
-            except NameError:
-                # OfficeScoreModel doesn't exist, continue with other logic
-                pass
-        elif period == '6':
-            try:
-                if not (ScoreModel.objects.exists() or LinuxScoreModel.objects.exists() or NetworkScoreModel.objects.exists()):
-
-                    for row in total_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
-                        name, network_score, linux_score = row
-                        score = ScoreModel(name=name, network_score=network_score, linux_score=linux_score)
-                        score.save()
-
-                    for row in linux_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
-                        name, item1, item2, item3, item4, total = row
-                        linux_score = LinuxScoreModel(name=name, item1=item1, item2=item2, item3=item3
-                                                          , item4=item4, total=total)
-                        linux_score.save()
-
-                    for row in network_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
-                        name, item1, item2, item3, item4, item5, item6, item7, total = row
-                        network_score = NetworkScoreModel(name=name, item1=item1, item2=item2, item3=item3
-                                                          , item4=item4, item5=item5, item6=item6, item7=item7, total=total)
-                        network_score.save()
-
-                    return Response(data={'msg': '数据添加成功', 'code': 200}, status=200)
-                else:
-                    return Response(data={'msg': '添加失败，已经插入过数据', 'code': 403}, status=200)
-            # do something
-            except NameError:
-                # OfficeScoreModel doesn't exist, continue with other logic
-                pass
-        elif period == '7':
-            try:
-                if not (
-                        ScoreModel.objects.exists() or LinuxScoreModel.objects.exists() or NetworkScoreModel.objects.exists()):
-
-                    for row in total_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
-                        name, network_score, linux_score = row
-                        score = ScoreModel(name=name, network_score=network_score, linux_score=linux_score)
-                        score.save()
-
-                    for row in linux_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
-                        name, item1, item2, item3, item4, item5, item6, total = row
-                        linux_score = LinuxScoreModel(name=name, item1=item1, item2=item2, item3=item3
-                                                          , item4=item4, item5=item5, item6=item6, total=total)
-                        linux_score.save()
-
-                    for row in network_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
-                        name, item1, item2, item3, item4, item5, item6, total = row
-                        network_score = NetworkScoreModel(name=name, item1=item1, item2=item2, item3=item3
-                                                          , item4=item4, item5=item5, item6=item6, total=total)
-                        network_score.save()
-
-                    return Response(data={'msg': '数据添加成功', 'code': 200}, status=200)
-                else:
-                    return Response(data={'msg': '添加失败，已经插入过数据', 'code': 403}, status=200)
-            # do something
-            except NameError:
-                # OfficeScoreModel doesn't exist, continue with other logic
-                pass
-
-        elif period == '8':
-            try:
-                if not (
-                        ScoreModel.objects.exists() or LinuxScoreModel.objects.exists() or NetworkScoreModel.objects.exists()):
-
-                    for row in total_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
-                        name, network_score, linux_score = row
-                        score = ScoreModel(name=name, network_score=network_score, linux_score=linux_score)
-                        score.save()
-
-                    for row in linux_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
-                        name, item1, item2, item3, item4, total = row
-                        linux_score = LinuxScoreModel(name=name, item1=item1, item2=item2, item3=item3, item4=item4,
-                                                      total=total)
-                        linux_score.save()
-
-                    for row in network_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
-                        name, item1, item2, item3, item4, item5, total = row
-                        network_score = NetworkScoreModel(name=name, item1=item1, item2=item2, item3=item3
-                                                          , item4=item4, item5=item5, total=total)
-                        network_score.save()
-
-                    return Response(data={'msg': '数据添加成功', 'code': 200}, status=200)
-                else:
-                    return Response(data={'msg': '添加失败，已经插入过数据', 'code': 403}, status=200)
-            # do something
-            except NameError:
-                # OfficeScoreModel doesn't exist, continue with other logic
-                pass
-
-        elif period == '9':
-            try:
-                if not (ScoreModel.objects.exists() or LinuxScoreModel.objects.exists() or NetworkScoreModel.objects.exists()):
-                    for row in total_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
-                        name, network_score, linux_score = row
-                        score = ScoreModel(name=name, network_score=network_score, linux_score=linux_score)
-                        score.save()
-
-                    for row in linux_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
-                        name, item1, item2, item3, item4, total = row
-                        linux_score = LinuxScoreModel(name=name, item1=item1, item2=item2, item3=item3, item4=item4,
-                                                      total=total)
-                        linux_score.save()
-
-                    for row in network_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
-                        name, item1, item2, item3, item4, item5, item6, total = row
-                        network_score = NetworkScoreModel(name=name, item1=item1, item2=item2, item3=item3
-                                                          , item4=item4, item5=item5, item6=item6, total=total)
-                        network_score.save()
-
-                    return Response(data={'msg': '数据添加成功', 'code': 200}, status=200)
-                else:
-                    return Response(data={'msg': '添加失败，已经插入过数据', 'code': 403}, status=200)
-            # do something
-            except NameError:
-                # OfficeScoreModel doesn't exist, continue with other logic
-                pass
-
-        elif period == '10':
-            try:
-                if not (ScoreModel.objects.exists() or LinuxScoreModel.objects.exists()):
-                    for row in total_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
-                        name, linux_score = row
-                        score = ScoreModel(name=name, linux_score=linux_score)
-                        score.save()
-
-                    for row in linux_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
-                        name, item1, item2, item3, item4, item5, item6, item7, item8, total = row
-                        linux_score = LinuxScoreModel(name=name, item1=item1, item2=item2, item3=item3, item4=item4,
-                                                      item5=item5, item6=item6,  item7=item7, item8=item8, total=total)
-                        linux_score.save()
-
-                    return Response(data={'msg': '数据添加成功', 'code': 200}, status=200)
-                else:
-                    return Response(data={'msg': '添加失败，已经插入过数据', 'code': 403}, status=200)
-            except Exception as e:
-                print(e)
-                return Response(data={'msg': '插入失败，请查看报错信息', 'code': 404}, status=200)
-
-        elif period == '11':
-            try:
-                if not (NetworkScoreModel.objects.exists()):
-                    for row in network_sheet.iter_rows(min_row=2, min_col=2, values_only=True):
-                        team, name, item1, item2, item3, item4, item5, item6, item7,total = row
-                        network_score = NetworkScoreModel(team=team, name=name, item1=item1, item2=item2, item3=item3
-                                                          , item4=item4, item5=item5, item6=item6, item7=item7, total=total)
-                        network_score.save()
-
-                    return Response(data={'msg': '数据添加成功', 'code': 200}, status=200)
-                else:
-                    return Response(data={'msg': '添加失败，已经插入过数据', 'code': 403}, status=200)
-            except Exception as e:
-                print(e)
-                return Response(data={'msg': '插入失败，请查看报错信息', 'code': 404}, status=200)
-
-        elif period == '12':
-            try:
-                if not (LinuxScoreModel.objects.exists()):
-                    for row in linux_sheet.iter_rows(min_row=2, min_col=2, values_only=True):
-                        team, name, item1, item2, item3, item4, item5, item6, item7,total = row
-                        linux_score = LinuxScoreModel(team=team, name=name, item1=item1, item2=item2, item3=item3
-                                                          , item4=item4, item5=item5, item6=item6, item7=item7, total=total)
-                        linux_score.save()
-
-                    return Response(data={'msg': '数据添加成功', 'code': 200}, status=200)
-                else:
-                    return Response(data={'msg': '添加失败，已经插入过数据', 'code': 403}, status=200)
-            except Exception as e:
-                print(e)
-                return Response(data={'msg': '插入失败，请查看报错信息', 'code': 404}, status=200)
-
-        else:
-            return Response(data={'msg': '未找到当前期数成绩信息', 'code': 404}, status=200)
+import openpyxl
+from django.apps import apps
+# class InsertDatabase(APIView):
+#
+#     authentication_classes = []
+#     permission_classes = []
+#     def post(self, request):
+#         # 获取前端请求插入数据库的期数
+#         body_unicode = request.body.decode('utf-8')
+#         body = json.loads(body_unicode)
+#         period = body.get('period', '')
+#         period = str(period)
+#
+#         # 根据相应的期数获取需要写入的模型类
+#         score_model_name = 'Score' + period
+#         linux_model_name = 'LinuxScore' + period
+#         network_model_name = 'NetworkScore' + period
+#         office_model_name = 'OfficeScore' + period
+#         try:
+#             ScoreModel = apps.get_model('hsoftskill', score_model_name)
+#         except LookupError:
+#             ScoreModel = None
+#         try:
+#             LinuxScoreModel = apps.get_model('hsoftskill', linux_model_name)
+#         except LookupError:
+#             LinuxScoreModel = None
+#         try:
+#             NetworkScoreModel = apps.get_model('hsoftskill', network_model_name)
+#         except LookupError:
+#             NetworkScoreModel = None
+#         try:
+#             OfficeScoreModel = apps.get_model('hsoftskill', office_model_name)
+#         except LookupError:
+#             OfficeScoreModel = None
+#         print(NetworkScoreModel)
+#         if OfficeScoreModel is None:
+#             print("本期无文档题")
+#         # 读取Excel文件
+#         wb = openpyxl.load_workbook(filerootpath +'/judge/exam' + period + '/组员评分汇总.xlsx')
+#
+#         sheet_names = ['总成绩', '数通题', '服务器题', '文档题', '组员评分']
+#         sheets = {}
+#
+#         for sheet_name in sheet_names:
+#             try:
+#                 sheets[sheet_name] = wb[sheet_name]
+#             except Exception as e:
+#                 print(e)
+#                 pass
+#
+#         # total_sheet = sheets.get('总成绩')
+#         # network_sheet = sheets.get('数通题')
+#         # linux_sheet = sheets.get('服务器题')
+#         # office_sheet = sheets.get('文档题')
+#         total_sheet = sheets.get('组员评分')
+#         network_sheet = sheets.get('组员评分')
+#         linux_sheet = sheets.get('组员评分')
+#         office_sheet = sheets.get('组员评分')
+#
+#         # 读取数据
+#         if period == '3':
+#             try:
+#                 if not (ScoreModel.objects.exists() or LinuxScoreModel.objects.exists() or NetworkScoreModel.objects.exists()
+#                         or OfficeScoreModel.objects.exists()):
+#
+#                     for row in total_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
+#                         name, office_score, network_score, linux_score = row
+#                         score = ScoreModel(name=name, office_score=office_score, network_score=network_score,
+#                                            linux_score=linux_score)
+#                         score.save()
+#
+#                     for row in linux_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
+#                         name, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, total = row
+#                         linux_score = LinuxScoreModel(name=name, item1=item1, item2=item2, item3=item3
+#                                                       , item4=item4, item5=item5, item6=item6, item7=item7,
+#                                                       item8=item8, item9=item9,  item10=item10, total=total)
+#                         linux_score.save()
+#
+#                     for row in network_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
+#                         name, item1, item2, item3, item4, item5, item6, item7, item8, total = row
+#                         network_score = NetworkScoreModel(name=name, item1=item1, item2=item2, item3=item3
+#                                 , item4=item4, item5=item5, item6=item6, item7=item7, item8=item8, total=total)
+#                         network_score.save()
+#
+#                     for row in office_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
+#                         name, item1, item2, item3, item4, item5, item6, item7, item8, total = row
+#                         office_score = OfficeScoreModel(name=name, item1=item1, item2=item2, item3=item3
+#                                         , item4=item4, item5=item5, item6=item6, item7=item7, item8=item8, total=total)
+#                         office_score.save()
+#
+#                     return Response(data={'msg': '数据添加成功', 'code': 200}, status=200)
+#                 else:
+#                     return Response(data={'msg': '添加失败，已经插入过数据', 'code': 403}, status=200)
+#             # do something
+#             except NameError:
+#                 # OfficeScoreModel doesn't exist, continue with other logic
+#                 pass
+#         elif period == '4':
+#             try:
+#                 if not (ScoreModel.objects.exists() or LinuxScoreModel.objects.exists() or NetworkScoreModel.objects.exists()
+#                         or OfficeScoreModel.objects.exists()):
+#
+#                     for row in total_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
+#                         name, office_score, network_score, linux_score = row
+#                         score = ScoreModel(name=name, office_score=office_score, network_score=network_score,
+#                                            linux_score=linux_score)
+#                         score.save()
+#
+#                     for row in linux_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
+#                         name, item1, item2, item3, item4, item5, item6, item7, item8, item9,total = row
+#                         linux_score = LinuxScoreModel(name=name, item1=item1, item2=item2, item3=item3
+#                                                       , item4=item4, item5=item5, item6=item6, item7=item7,
+#                                                       item8=item8, item9=item9, total=total)
+#                         linux_score.save()
+#
+#                     for row in network_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
+#                         name, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, total = row
+#                         network_score = NetworkScoreModel(name=name, item1=item1, item2=item2, item3=item3
+#                                 , item4=item4, item5=item5, item6=item6, item7=item7, item8=item8
+#                                                           , item9=item9, item10=item10, item11=item11, item12=item12, total=total)
+#                         network_score.save()
+#
+#                     for row in office_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
+#                         name, item1, item2, item3, item4, item5, item6, item7, item8, item9, total = row
+#                         office_score = OfficeScoreModel(name=name, item1=item1, item2=item2, item3=item3
+#                                                         , item4=item4, item5=item5, item6=item6, item7=item7, item8=item8,
+#                                                         item9=item9, total=total)
+#                         office_score.save()
+#
+#                     return Response(data={'msg': '数据添加成功', 'code': 200}, status=200)
+#                 else:
+#                     return Response(data={'msg': '添加失败，已经插入过数据', 'code': 403}, status=200)
+#             # do something
+#             except NameError:
+#                 # OfficeScoreModel doesn't exist, continue with other logic
+#                 pass
+#         elif period == '5':
+#             try:
+#                 if not (ScoreModel.objects.exists() or LinuxScoreModel.objects.exists() or NetworkScoreModel.objects.exists()
+#                         or OfficeScoreModel.objects.exists()):
+#
+#                     for row in total_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
+#                         name, office_score, network_score, linux_score = row
+#                         score = ScoreModel(name=name, office_score=office_score, network_score=network_score, linux_score=linux_score)
+#                         score.save()
+#
+#                     for row in linux_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
+#                         name, item1, item2, item3, item4, item5, item6, item7, total = row
+#                         linux_score = LinuxScoreModel(name=name, item1=item1, item2=item2, item3=item3
+#                                                       , item4=item4, item5=item5, item6=item6, item7=item7, total=total)
+#                         linux_score.save()
+#
+#                     for row in network_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
+#                         name, item1, item2, item3, item4, item5, item6, item7, total = row
+#                         network_score = NetworkScoreModel(name=name, item1=item1, item2=item2, item3=item3
+#                                                           , item4=item4, item5=item5, item6=item6, item7=item7, total=total)
+#                         network_score.save()
+#
+#                     for row in office_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
+#                         name, item1, item2, item3, item4, item5, item6, item7, item8,total = row
+#                         office_score = OfficeScoreModel(name=name, item1=item1, item2=item2, item3=item3
+#                                             , item4=item4, item5=item5, item6=item6, item7=item7, item8=item8, total=total)
+#                         office_score.save()
+#
+#                     return Response(data={'msg': '数据添加成功', 'code': 200}, status=200)
+#                 else:
+#                     return Response(data={'msg': '添加失败，已经插入过数据', 'code': 403}, status=200)
+#             # do something
+#             except NameError:
+#                 # OfficeScoreModel doesn't exist, continue with other logic
+#                 pass
+#         elif period == '6':
+#             try:
+#                 if not (ScoreModel.objects.exists() or LinuxScoreModel.objects.exists() or NetworkScoreModel.objects.exists()):
+#
+#                     for row in total_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
+#                         name, network_score, linux_score = row
+#                         score = ScoreModel(name=name, network_score=network_score, linux_score=linux_score)
+#                         score.save()
+#
+#                     for row in linux_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
+#                         name, item1, item2, item3, item4, total = row
+#                         linux_score = LinuxScoreModel(name=name, item1=item1, item2=item2, item3=item3
+#                                                           , item4=item4, total=total)
+#                         linux_score.save()
+#
+#                     for row in network_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
+#                         name, item1, item2, item3, item4, item5, item6, item7, total = row
+#                         network_score = NetworkScoreModel(name=name, item1=item1, item2=item2, item3=item3
+#                                                           , item4=item4, item5=item5, item6=item6, item7=item7, total=total)
+#                         network_score.save()
+#
+#                     return Response(data={'msg': '数据添加成功', 'code': 200}, status=200)
+#                 else:
+#                     return Response(data={'msg': '添加失败，已经插入过数据', 'code': 403}, status=200)
+#             # do something
+#             except NameError:
+#                 # OfficeScoreModel doesn't exist, continue with other logic
+#                 pass
+#         elif period == '7':
+#             try:
+#                 if not (
+#                         ScoreModel.objects.exists() or LinuxScoreModel.objects.exists() or NetworkScoreModel.objects.exists()):
+#
+#                     for row in total_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
+#                         name, network_score, linux_score = row
+#                         score = ScoreModel(name=name, network_score=network_score, linux_score=linux_score)
+#                         score.save()
+#
+#                     for row in linux_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
+#                         name, item1, item2, item3, item4, item5, item6, total = row
+#                         linux_score = LinuxScoreModel(name=name, item1=item1, item2=item2, item3=item3
+#                                                           , item4=item4, item5=item5, item6=item6, total=total)
+#                         linux_score.save()
+#
+#                     for row in network_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
+#                         name, item1, item2, item3, item4, item5, item6, total = row
+#                         network_score = NetworkScoreModel(name=name, item1=item1, item2=item2, item3=item3
+#                                                           , item4=item4, item5=item5, item6=item6, total=total)
+#                         network_score.save()
+#
+#                     return Response(data={'msg': '数据添加成功', 'code': 200}, status=200)
+#                 else:
+#                     return Response(data={'msg': '添加失败，已经插入过数据', 'code': 403}, status=200)
+#             # do something
+#             except NameError:
+#                 # OfficeScoreModel doesn't exist, continue with other logic
+#                 pass
+#
+#         elif period == '8':
+#             try:
+#                 if not (
+#                         ScoreModel.objects.exists() or LinuxScoreModel.objects.exists() or NetworkScoreModel.objects.exists()):
+#
+#                     for row in total_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
+#                         name, network_score, linux_score = row
+#                         score = ScoreModel(name=name, network_score=network_score, linux_score=linux_score)
+#                         score.save()
+#
+#                     for row in linux_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
+#                         name, item1, item2, item3, item4, total = row
+#                         linux_score = LinuxScoreModel(name=name, item1=item1, item2=item2, item3=item3, item4=item4,
+#                                                       total=total)
+#                         linux_score.save()
+#
+#                     for row in network_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
+#                         name, item1, item2, item3, item4, item5, total = row
+#                         network_score = NetworkScoreModel(name=name, item1=item1, item2=item2, item3=item3
+#                                                           , item4=item4, item5=item5, total=total)
+#                         network_score.save()
+#
+#                     return Response(data={'msg': '数据添加成功', 'code': 200}, status=200)
+#                 else:
+#                     return Response(data={'msg': '添加失败，已经插入过数据', 'code': 403}, status=200)
+#             # do something
+#             except NameError:
+#                 # OfficeScoreModel doesn't exist, continue with other logic
+#                 pass
+#
+#         elif period == '9':
+#             try:
+#                 if not (ScoreModel.objects.exists() or LinuxScoreModel.objects.exists() or NetworkScoreModel.objects.exists()):
+#                     for row in total_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
+#                         name, network_score, linux_score = row
+#                         score = ScoreModel(name=name, network_score=network_score, linux_score=linux_score)
+#                         score.save()
+#
+#                     for row in linux_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
+#                         name, item1, item2, item3, item4, total = row
+#                         linux_score = LinuxScoreModel(name=name, item1=item1, item2=item2, item3=item3, item4=item4,
+#                                                       total=total)
+#                         linux_score.save()
+#
+#                     for row in network_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
+#                         name, item1, item2, item3, item4, item5, item6, total = row
+#                         network_score = NetworkScoreModel(name=name, item1=item1, item2=item2, item3=item3
+#                                                           , item4=item4, item5=item5, item6=item6, total=total)
+#                         network_score.save()
+#
+#                     return Response(data={'msg': '数据添加成功', 'code': 200}, status=200)
+#                 else:
+#                     return Response(data={'msg': '添加失败，已经插入过数据', 'code': 403}, status=200)
+#             # do something
+#             except NameError:
+#                 # OfficeScoreModel doesn't exist, continue with other logic
+#                 pass
+#
+#         elif period == '10':
+#             try:
+#                 if not (ScoreModel.objects.exists() or LinuxScoreModel.objects.exists()):
+#                     for row in total_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
+#                         name, linux_score = row
+#                         score = ScoreModel(name=name, linux_score=linux_score)
+#                         score.save()
+#
+#                     for row in linux_sheet.iter_rows(min_row=3, min_col=2, values_only=True):
+#                         name, item1, item2, item3, item4, item5, item6, item7, item8, total = row
+#                         linux_score = LinuxScoreModel(name=name, item1=item1, item2=item2, item3=item3, item4=item4,
+#                                                       item5=item5, item6=item6,  item7=item7, item8=item8, total=total)
+#                         linux_score.save()
+#
+#                     return Response(data={'msg': '数据添加成功', 'code': 200}, status=200)
+#                 else:
+#                     return Response(data={'msg': '添加失败，已经插入过数据', 'code': 403}, status=200)
+#             except Exception as e:
+#                 print(e)
+#                 return Response(data={'msg': '插入失败，请查看报错信息', 'code': 404}, status=200)
+#
+#         elif period == '11':
+#             try:
+#                 if not (NetworkScoreModel.objects.exists()):
+#                     for row in network_sheet.iter_rows(min_row=2, min_col=2, values_only=True):
+#                         team, name, item1, item2, item3, item4, item5, item6, item7,total = row
+#                         network_score = NetworkScoreModel(team=team, name=name, item1=item1, item2=item2, item3=item3
+#                                                           , item4=item4, item5=item5, item6=item6, item7=item7, total=total)
+#                         network_score.save()
+#
+#                     return Response(data={'msg': '数据添加成功', 'code': 200}, status=200)
+#                 else:
+#                     return Response(data={'msg': '添加失败，已经插入过数据', 'code': 403}, status=200)
+#             except Exception as e:
+#                 print(e)
+#                 return Response(data={'msg': '插入失败，请查看报错信息', 'code': 404}, status=200)
+#
+#         elif period == '12':
+#             try:
+#                 if not (LinuxScoreModel.objects.exists()):
+#                     for row in linux_sheet.iter_rows(min_row=2, min_col=2, values_only=True):
+#                         team, name, item1, item2, item3, item4, item5, item6, item7,total = row
+#                         linux_score = LinuxScoreModel(team=team, name=name, item1=item1, item2=item2, item3=item3
+#                                                           , item4=item4, item5=item5, item6=item6, item7=item7, total=total)
+#                         linux_score.save()
+#
+#                     return Response(data={'msg': '数据添加成功', 'code': 200}, status=200)
+#                 else:
+#                     return Response(data={'msg': '添加失败，已经插入过数据', 'code': 403}, status=200)
+#             except Exception as e:
+#                 print(e)
+#                 return Response(data={'msg': '插入失败，请查看报错信息', 'code': 404}, status=200)
+#
+#         else:
+#             return Response(data={'msg': '未找到当前期数成绩信息', 'code': 404}, status=200)
 
 class GetAllPeriod(APIView):
     '''
@@ -950,83 +1025,137 @@ class GetScore(APIView):
     '''
     获取指定期数成绩信息
     '''
-    from django.apps import apps
-    from django.http import JsonResponse
 
-    def get(self, request):
-        period = request.GET['period']
+    def get(self, request, *args, **kwargs):
+        period = request.GET.get('period', None)
+        name = request.GET.get('name', None)
+        if period is not None and name is not None:
+            scores = Score.objects.filter(period=period, user__name=name).select_related('user', 'subject')
+            data = [{
+                'student_name': score.user.name,
+                'serial_number': score.serial_number,
+                'group': score.group,
+                'scores': score.scores,
+                'period': score.period,
+                'subject': score.subject.name
+            } for score in scores]
+            return JsonResponse(data, safe=False)
 
-        score_model_name = 'Score' + period
-        linux_model_name = 'LinuxScore' + period
-        network_model_name = 'NetworkScore' + period
-        office_model_name = 'OfficeScore' + period
-        try:
-            ScoreModel = apps.get_model('hsoftskill', score_model_name)
-        except:
-            ScoreModel = None
-        try:
-            LinuxScoreModel = apps.get_model('hsoftskill', linux_model_name)
-        except:
-            LinuxScoreModel = None
-        try:
-            NetworkScoreModel = apps.get_model('hsoftskill', network_model_name)
-        except:
-            NetworkScoreModel = None
-        try:
-            OfficeScoreModel = apps.get_model('hsoftskill', office_model_name)
-        except:
-            OfficeScoreModel = None
+        elif period is not None:
+            scores = Score.objects.filter(period=period).select_related('user', 'subject')
+            data = [{
+                'student_name': score.user.name,
+                'serial_number': score.serial_number,
+                'group': score.group,
+                'scores': score.scores,
+                'period': score.period,
+                'subject': score.subject.name
+            } for score in scores]
+            return JsonResponse(data, safe=False)
+        else:
+            return JsonResponse({"detail": "Period not specified."}, status=400)
 
-        if OfficeScoreModel is None:
-            print("本期无文档题")
-        try:
-            scores = ScoreModel.objects.all().values()
-        except:
-            scores = []
-        try:
-            linux_scores = LinuxScoreModel.objects.all().values()
-        except:
-            linux_scores = []
-        try:
-            network_scores = NetworkScoreModel.objects.all().values()
-        except:
-            network_scores = []
-        try:
-            office_scores = OfficeScoreModel.objects.all().values()
-        except:
-            office_scores = []
-        try:
-            fields = [
-                {'key': field.name, 'label': field.verbose_name} for field in ScoreModel._meta.fields if
-                            field.name not in ['period']
-                        ]
-        except:
-            fields = []
-        try:
-            linux_fields = [{'key': field.name, 'label': field.verbose_name} for field in LinuxScoreModel._meta.fields if
-                            field.name not in ['period']
-                            ]
-        except:
-            linux_fields = []
-        try:
-            network_fields = [
-                {'key': field.name, 'label': field.verbose_name} for field in NetworkScoreModel._meta.fields if
-                            field.name not in ['period']
-                         ]
-        except:
-            network_fields = []
-        try:
-            office_fields = [
-                {'key': field.name, 'label': field.verbose_name} for field in OfficeScoreModel._meta.fields if
-                            field.name not in ['period']
-                ]
-        except:
-            office_fields = []
-        try:
-            return JsonResponse(
-                {'scores': list(scores), 'linux_scores': list(linux_scores), 'network_scores': list(network_scores),
-                 'office_scores': list(office_scores),
-                 'fields': fields, 'linux_fields': linux_fields, 'network_fields': network_fields, 'office_fields': office_fields}
-            )
-        except:
-            return JsonResponse({'msg': '未找到当前期数成绩信息', 'code': 404})
+# class GetLeaderScore(APIView):
+#     '''
+#     获取指定期数成绩信息
+#     '''
+#
+#     def get(self, request, *args, **kwargs):
+#         period = request.GET.get('period', None)
+#         if period is not None:
+#             leaderscores = LeaderScore.objects.filter(period=period).select_related('user')
+#             data = [{
+#                 'student_name': score.user.name,
+#                 'serial_number': score.serial_number,
+#                 'group': score.group,
+#                 'scores': score.scores,
+#                 'period': score.period
+#             } for score in leaderscores]
+#             return JsonResponse(data, safe=False)
+#         else:
+#             return JsonResponse({"detail": "Period not specified."}, status=400)
+
+# class GetScore(APIView):
+#     '''
+#     获取指定期数成绩信息
+#     '''
+#     from django.apps import apps
+#     from django.http import JsonResponse
+#
+#     def get(self, request):
+#         period = request.GET['period']
+#
+#         score_model_name = 'Score' + period
+#         linux_model_name = 'LinuxScore' + period
+#         network_model_name = 'NetworkScore' + period
+#         office_model_name = 'OfficeScore' + period
+#         try:
+#             ScoreModel = apps.get_model('hsoftskill', score_model_name)
+#         except:
+#             ScoreModel = None
+#         try:
+#             LinuxScoreModel = apps.get_model('hsoftskill', linux_model_name)
+#         except:
+#             LinuxScoreModel = None
+#         try:
+#             NetworkScoreModel = apps.get_model('hsoftskill', network_model_name)
+#         except:
+#             NetworkScoreModel = None
+#         try:
+#             OfficeScoreModel = apps.get_model('hsoftskill', office_model_name)
+#         except:
+#             OfficeScoreModel = None
+#
+#         if OfficeScoreModel is None:
+#             print("本期无文档题")
+#         try:
+#             scores = ScoreModel.objects.all().values()
+#         except:
+#             scores = []
+#         try:
+#             linux_scores = LinuxScoreModel.objects.all().values()
+#         except:
+#             linux_scores = []
+#         try:
+#             network_scores = NetworkScoreModel.objects.all().values()
+#         except:
+#             network_scores = []
+#         try:
+#             office_scores = OfficeScoreModel.objects.all().values()
+#         except:
+#             office_scores = []
+#         try:
+#             fields = [
+#                 {'key': field.name, 'label': field.verbose_name} for field in ScoreModel._meta.fields if
+#                             field.name not in ['period']
+#                         ]
+#         except:
+#             fields = []
+#         try:
+#             linux_fields = [{'key': field.name, 'label': field.verbose_name} for field in LinuxScoreModel._meta.fields if
+#                             field.name not in ['period']
+#                             ]
+#         except:
+#             linux_fields = []
+#         try:
+#             network_fields = [
+#                 {'key': field.name, 'label': field.verbose_name} for field in NetworkScoreModel._meta.fields if
+#                             field.name not in ['period']
+#                          ]
+#         except:
+#             network_fields = []
+#         try:
+#             office_fields = [
+#                 {'key': field.name, 'label': field.verbose_name} for field in OfficeScoreModel._meta.fields if
+#                             field.name not in ['period']
+#                 ]
+#         except:
+#             office_fields = []
+#         try:
+#             return JsonResponse(
+#                 {'scores': list(scores), 'linux_scores': list(linux_scores), 'network_scores': list(network_scores),
+#                  'office_scores': list(office_scores),
+#                  'fields': fields, 'linux_fields': linux_fields, 'network_fields': network_fields, 'office_fields': office_fields}
+#             )
+#         except:
+#             return JsonResponse({'msg': '未找到当前期数成绩信息', 'code': 404})

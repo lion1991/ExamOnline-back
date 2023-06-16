@@ -727,3 +727,24 @@ class LinuxScore12(models.Model):
         verbose_name = '服务器成绩12'
         verbose_name_plural = verbose_name
         unique_together = ('name', 'period')
+
+#测试新的整合成绩model
+from django.contrib.auth.models import AbstractUser, User
+
+class Subject(models.Model):
+    name = models.CharField(max_length=100) # 科目名称
+    description = models.TextField(null=True, blank=True) # 科目描述
+    class Meta:
+        db_table = 'exam_subject'
+        verbose_name = "科目"
+
+class Score(models.Model):
+    user = models.ForeignKey(Student, on_delete=models.CASCADE)
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    period = models.IntegerField()
+    scores = models.JSONField()
+    serial_number = models.IntegerField()
+    group = models.CharField(max_length=50)
+    class Meta:
+        db_table = 'exam_score'
+        verbose_name = "考核分数"
