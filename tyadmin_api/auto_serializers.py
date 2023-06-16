@@ -5,7 +5,7 @@ from user.models import Department, Teacher, Student, UserRolesInfo
 from exam.models import Paper, Exam, Grade, Practice
 from question.models import Choice, ChoiceMu, Fill, Judge, Program
 from record.models import ChoiceRecord, ChoiceMuRecord, FillRecord, JudgeRecord, ProgramRecord
-from hsoftskill.models import LimitFile, RandomFileId, Files, PersonalGradeFiles, CaptainFiles, ExamFiles, JudgeFiles, Score3, LinuxScore3, NetworkScore3, OfficeScore3, Score4, LinuxScore4, NetworkScore4, OfficeScore4, Score5, LinuxScore5, NetworkScore5, OfficeScore5, Score6, LinuxScore6, NetworkScore6, Score7, LinuxScore7, NetworkScore7, Score8, LinuxScore8, NetworkScore8, Score9, LinuxScore9, NetworkScore9, Score10, LinuxScore10
+from hsoftskill.models import LimitFile, RandomFileId, Files, PersonalGradeFiles, CaptainFiles, ExamFiles, JudgeFiles, Subject, Score
 
 
 class ContentTypeListSerializer(serializers.ModelSerializer):
@@ -260,14 +260,14 @@ class LimitFileCreateUpdateSerializer(serializers.ModelSerializer):
         return str(obj)
 
 
-class Score3ListSerializer(serializers.ModelSerializer):
+class SubjectListSerializer(serializers.ModelSerializer):
     
 
     key = serializers.CharField(source="pk")
     ty_options_display_txt = serializers.SerializerMethodField()
 
     class Meta:
-        model = Score3
+        model = Subject
         fields = "__all__"
 
     @staticmethod
@@ -275,712 +275,12 @@ class Score3ListSerializer(serializers.ModelSerializer):
         return str(obj)
 
 
-class Score3CreateUpdateSerializer(serializers.ModelSerializer):
+class SubjectCreateUpdateSerializer(serializers.ModelSerializer):
     
     ty_options_display_txt = serializers.SerializerMethodField()
 
     class Meta:
-        model = Score3
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class LinuxScore3ListSerializer(serializers.ModelSerializer):
-    
-
-    key = serializers.CharField(source="pk")
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = LinuxScore3
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class LinuxScore3CreateUpdateSerializer(serializers.ModelSerializer):
-    
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = LinuxScore3
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class NetworkScore3ListSerializer(serializers.ModelSerializer):
-    
-
-    key = serializers.CharField(source="pk")
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = NetworkScore3
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class NetworkScore3CreateUpdateSerializer(serializers.ModelSerializer):
-    
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = NetworkScore3
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class OfficeScore3ListSerializer(serializers.ModelSerializer):
-    
-
-    key = serializers.CharField(source="pk")
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = OfficeScore3
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class OfficeScore3CreateUpdateSerializer(serializers.ModelSerializer):
-    
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = OfficeScore3
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class Score4ListSerializer(serializers.ModelSerializer):
-    
-
-    key = serializers.CharField(source="pk")
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Score4
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class Score4CreateUpdateSerializer(serializers.ModelSerializer):
-    
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Score4
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class LinuxScore4ListSerializer(serializers.ModelSerializer):
-    
-
-    key = serializers.CharField(source="pk")
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = LinuxScore4
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class LinuxScore4CreateUpdateSerializer(serializers.ModelSerializer):
-    
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = LinuxScore4
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class NetworkScore4ListSerializer(serializers.ModelSerializer):
-    
-
-    key = serializers.CharField(source="pk")
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = NetworkScore4
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class NetworkScore4CreateUpdateSerializer(serializers.ModelSerializer):
-    
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = NetworkScore4
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class OfficeScore4ListSerializer(serializers.ModelSerializer):
-    
-
-    key = serializers.CharField(source="pk")
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = OfficeScore4
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class OfficeScore4CreateUpdateSerializer(serializers.ModelSerializer):
-    
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = OfficeScore4
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class Score5ListSerializer(serializers.ModelSerializer):
-    
-
-    key = serializers.CharField(source="pk")
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Score5
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class Score5CreateUpdateSerializer(serializers.ModelSerializer):
-    
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Score5
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class LinuxScore5ListSerializer(serializers.ModelSerializer):
-    
-
-    key = serializers.CharField(source="pk")
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = LinuxScore5
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class LinuxScore5CreateUpdateSerializer(serializers.ModelSerializer):
-    
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = LinuxScore5
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class NetworkScore5ListSerializer(serializers.ModelSerializer):
-    
-
-    key = serializers.CharField(source="pk")
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = NetworkScore5
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class NetworkScore5CreateUpdateSerializer(serializers.ModelSerializer):
-    
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = NetworkScore5
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class OfficeScore5ListSerializer(serializers.ModelSerializer):
-    
-
-    key = serializers.CharField(source="pk")
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = OfficeScore5
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class OfficeScore5CreateUpdateSerializer(serializers.ModelSerializer):
-    
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = OfficeScore5
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class Score6ListSerializer(serializers.ModelSerializer):
-    
-
-    key = serializers.CharField(source="pk")
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Score6
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class Score6CreateUpdateSerializer(serializers.ModelSerializer):
-    
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Score6
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class LinuxScore6ListSerializer(serializers.ModelSerializer):
-    
-
-    key = serializers.CharField(source="pk")
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = LinuxScore6
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class LinuxScore6CreateUpdateSerializer(serializers.ModelSerializer):
-    
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = LinuxScore6
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class NetworkScore6ListSerializer(serializers.ModelSerializer):
-    
-
-    key = serializers.CharField(source="pk")
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = NetworkScore6
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class NetworkScore6CreateUpdateSerializer(serializers.ModelSerializer):
-    
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = NetworkScore6
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class Score7ListSerializer(serializers.ModelSerializer):
-    
-
-    key = serializers.CharField(source="pk")
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Score7
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class Score7CreateUpdateSerializer(serializers.ModelSerializer):
-    
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Score7
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class LinuxScore7ListSerializer(serializers.ModelSerializer):
-    
-
-    key = serializers.CharField(source="pk")
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = LinuxScore7
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class LinuxScore7CreateUpdateSerializer(serializers.ModelSerializer):
-    
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = LinuxScore7
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class NetworkScore7ListSerializer(serializers.ModelSerializer):
-    
-
-    key = serializers.CharField(source="pk")
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = NetworkScore7
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class NetworkScore7CreateUpdateSerializer(serializers.ModelSerializer):
-    
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = NetworkScore7
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class Score8ListSerializer(serializers.ModelSerializer):
-    
-
-    key = serializers.CharField(source="pk")
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Score8
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class Score8CreateUpdateSerializer(serializers.ModelSerializer):
-    
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Score8
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class LinuxScore8ListSerializer(serializers.ModelSerializer):
-    
-
-    key = serializers.CharField(source="pk")
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = LinuxScore8
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class LinuxScore8CreateUpdateSerializer(serializers.ModelSerializer):
-    
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = LinuxScore8
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class NetworkScore8ListSerializer(serializers.ModelSerializer):
-    
-
-    key = serializers.CharField(source="pk")
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = NetworkScore8
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class NetworkScore8CreateUpdateSerializer(serializers.ModelSerializer):
-    
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = NetworkScore8
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class Score9ListSerializer(serializers.ModelSerializer):
-    
-
-    key = serializers.CharField(source="pk")
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Score9
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class Score9CreateUpdateSerializer(serializers.ModelSerializer):
-    
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Score9
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class LinuxScore9ListSerializer(serializers.ModelSerializer):
-    
-
-    key = serializers.CharField(source="pk")
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = LinuxScore9
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class LinuxScore9CreateUpdateSerializer(serializers.ModelSerializer):
-    
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = LinuxScore9
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class NetworkScore9ListSerializer(serializers.ModelSerializer):
-    
-
-    key = serializers.CharField(source="pk")
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = NetworkScore9
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class NetworkScore9CreateUpdateSerializer(serializers.ModelSerializer):
-    
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = NetworkScore9
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class Score10ListSerializer(serializers.ModelSerializer):
-    
-
-    key = serializers.CharField(source="pk")
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Score10
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class Score10CreateUpdateSerializer(serializers.ModelSerializer):
-    
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Score10
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class LinuxScore10ListSerializer(serializers.ModelSerializer):
-    
-
-    key = serializers.CharField(source="pk")
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = LinuxScore10
-        fields = "__all__"
-
-    @staticmethod
-    def get_ty_options_display_txt(obj):
-        return str(obj)
-
-
-class LinuxScore10CreateUpdateSerializer(serializers.ModelSerializer):
-    
-    ty_options_display_txt = serializers.SerializerMethodField()
-
-    class Meta:
-        model = LinuxScore10
+        model = Subject
         fields = "__all__"
 
     @staticmethod
@@ -1889,6 +1189,52 @@ class JudgeFilesCreateUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = JudgeFiles
+        fields = "__all__"
+
+    @staticmethod
+    def get_ty_options_display_txt(obj):
+        return str(obj)
+
+
+class ScoreListSerializer(serializers.ModelSerializer):
+    
+
+    class StudentSerializer(serializers.ModelSerializer):
+        ty_options_display_txt = serializers.SerializerMethodField()
+        class Meta:
+            model = Student
+            fields = "__all__"
+        @staticmethod
+        def get_ty_options_display_txt(obj):
+            return str(obj)
+    user = StudentSerializer()
+    class SubjectSerializer(serializers.ModelSerializer):
+        ty_options_display_txt = serializers.SerializerMethodField()
+        class Meta:
+            model = Subject
+            fields = "__all__"
+        @staticmethod
+        def get_ty_options_display_txt(obj):
+            return str(obj)
+    subject = SubjectSerializer()
+    key = serializers.CharField(source="pk")
+    ty_options_display_txt = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Score
+        fields = "__all__"
+
+    @staticmethod
+    def get_ty_options_display_txt(obj):
+        return str(obj)
+
+
+class ScoreCreateUpdateSerializer(serializers.ModelSerializer):
+    
+    ty_options_display_txt = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Score
         fields = "__all__"
 
     @staticmethod

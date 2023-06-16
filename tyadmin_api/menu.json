@@ -196,134 +196,14 @@
                 component: './AutoGenPage/JudgeFilesList',
             },
             {
-                name: '总成绩3',
-                path: '/xadmin/hsoftskill/score3',
-                component: './AutoGenPage/Score3List',
+                name: '科目',
+                path: '/xadmin/hsoftskill/subject',
+                component: './AutoGenPage/SubjectList',
             },
             {
-                name: '服务器成绩3',
-                path: '/xadmin/hsoftskill/linux_score3',
-                component: './AutoGenPage/LinuxScore3List',
-            },
-            {
-                name: '数通成绩3',
-                path: '/xadmin/hsoftskill/network_score3',
-                component: './AutoGenPage/NetworkScore3List',
-            },
-            {
-                name: '文档成绩3',
-                path: '/xadmin/hsoftskill/office_score3',
-                component: './AutoGenPage/OfficeScore3List',
-            },
-            {
-                name: '总成绩4',
-                path: '/xadmin/hsoftskill/score4',
-                component: './AutoGenPage/Score4List',
-            },
-            {
-                name: '服务器成绩4',
-                path: '/xadmin/hsoftskill/linux_score4',
-                component: './AutoGenPage/LinuxScore4List',
-            },
-            {
-                name: '数通成绩4',
-                path: '/xadmin/hsoftskill/network_score4',
-                component: './AutoGenPage/NetworkScore4List',
-            },
-            {
-                name: '文档成绩4',
-                path: '/xadmin/hsoftskill/office_score4',
-                component: './AutoGenPage/OfficeScore4List',
-            },
-            {
-                name: '总成绩5',
-                path: '/xadmin/hsoftskill/score5',
-                component: './AutoGenPage/Score5List',
-            },
-            {
-                name: '服务器成绩5',
-                path: '/xadmin/hsoftskill/linux_score5',
-                component: './AutoGenPage/LinuxScore5List',
-            },
-            {
-                name: '数通成绩5',
-                path: '/xadmin/hsoftskill/network_score5',
-                component: './AutoGenPage/NetworkScore5List',
-            },
-            {
-                name: '文档成绩5',
-                path: '/xadmin/hsoftskill/office_score5',
-                component: './AutoGenPage/OfficeScore5List',
-            },
-            {
-                name: '总成绩6',
-                path: '/xadmin/hsoftskill/score6',
-                component: './AutoGenPage/Score6List',
-            },
-            {
-                name: '服务器成绩6',
-                path: '/xadmin/hsoftskill/linux_score6',
-                component: './AutoGenPage/LinuxScore6List',
-            },
-            {
-                name: '数通成绩6',
-                path: '/xadmin/hsoftskill/network_score6',
-                component: './AutoGenPage/NetworkScore6List',
-            },
-            {
-                name: '总成绩7',
-                path: '/xadmin/hsoftskill/score7',
-                component: './AutoGenPage/Score7List',
-            },
-            {
-                name: '服务器成绩7',
-                path: '/xadmin/hsoftskill/linux_score7',
-                component: './AutoGenPage/LinuxScore7List',
-            },
-            {
-                name: '数通成绩7',
-                path: '/xadmin/hsoftskill/network_score7',
-                component: './AutoGenPage/NetworkScore7List',
-            },
-            {
-                name: '总成绩8',
-                path: '/xadmin/hsoftskill/score8',
-                component: './AutoGenPage/Score8List',
-            },
-            {
-                name: '服务器成绩8',
-                path: '/xadmin/hsoftskill/linux_score8',
-                component: './AutoGenPage/LinuxScore8List',
-            },
-            {
-                name: '数通成绩8',
-                path: '/xadmin/hsoftskill/network_score8',
-                component: './AutoGenPage/NetworkScore8List',
-            },
-            {
-                name: '总成绩9',
-                path: '/xadmin/hsoftskill/score9',
-                component: './AutoGenPage/Score9List',
-            },
-            {
-                name: '服务器成绩9',
-                path: '/xadmin/hsoftskill/linux_score9',
-                component: './AutoGenPage/LinuxScore9List',
-            },
-            {
-                name: '数通成绩9',
-                path: '/xadmin/hsoftskill/network_score9',
-                component: './AutoGenPage/NetworkScore9List',
-            },
-            {
-                name: '总成绩10',
-                path: '/xadmin/hsoftskill/score10',
-                component: './AutoGenPage/Score10List',
-            },
-            {
-                name: '服务器成绩10',
-                path: '/xadmin/hsoftskill/linux_score10',
-                component: './AutoGenPage/LinuxScore10List',
+                name: '考核分数',
+                path: '/xadmin/hsoftskill/score',
+                component: './AutoGenPage/ScoreList',
             }
         ]
     },
