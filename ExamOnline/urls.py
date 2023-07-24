@@ -27,7 +27,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 
 from ExamOnline import settings
 from hsoftskill import views
-from hsoftskill.views import UploadListViewSet, LimitPeriodListViewSet
+from hsoftskill.views import UploadListViewSet, LimitPeriodListViewSet, ResetPasswordView
 
 from user.views import MyObtainTokenPairView, QueryUserView
     #, QueryMenuDetail
@@ -88,7 +88,7 @@ urlpatterns = [
     re_path('^xadmin/.*', AdminIndexView.as_view()),
     # re_path('media/(?P<path>.*)', serve, {"document_root": settings.MEDIA_ROOT}),
 
-
+    path('reset-password/', ResetPasswordView.as_view(), name='reset_password'), #重置密码
     path('docs/', include_docs_urls('Python在线考试系统')),
     # path('doc/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),  #<-- 这里
     # path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),  #<-- 这里

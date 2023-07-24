@@ -1,4 +1,4 @@
-
+from django.contrib.auth import get_user_model
 from django.http import FileResponse, Http404, JsonResponse
 from django.http import HttpResponse
 
@@ -40,6 +40,29 @@ from hsoftskill.models import Files, LimitFile, RandomFileId, CaptainFiles, Exam
 # from openpyxl.styles import Side, Border
 # from openpyxl.styles import Font
 
+class ResetPasswordView(APIView):
+    '''
+    重置密码
+    '''
+    authentication_classes = []
+    permission_classes = []
+    def post(self, request, format=None):
+        User = get_user_model()
+        username = request.data.get('username')
+        new_password = request.data.get('new_password')
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({"detail": "User does not exist with this username"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # 要确保新密码符合密码强度要求
+        # 在这里我们简单假设密码长度要大于6
+        if len(new_password) < 6:
+            return Response({"detail": "Password length should be greater than 6"}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.set_password(new_password)
+        user.save()
+        return Response({"msg": "success", "detail": "Password reset successful"}, status=status.HTTP_200_OK)
 
 class ExamFileView(generics.CreateAPIView):
     """
