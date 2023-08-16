@@ -661,7 +661,11 @@ class InsertDatabase(APIView):
                     student_name = student_names[i]
 
                     # 使用学生姓名查询学生对象
-                    user = Student.objects.get(name=student_name)
+                    try:
+                        user = Student.objects.get(name=student_name)
+                    except Student.DoesNotExist:
+                        return JsonResponse({'msg': f'找不到名为 {student_name} 的学生', 'code': 404})
+
                     # 将每一行数据转换为一个字典，注意这里是从第4列开始的
                     scores = df.iloc[i, 3:].to_dict()
 
